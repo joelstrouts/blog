@@ -9,7 +9,7 @@ mathjax: true
 ---
 
 
-For the next two months I am working in Hong Kong. In this post I will explain who I am and what I'm doing.
+For the next two months I am working in Hong Kong. While I'm here I think it would be helpful to document my time and the work I'm doing. So that those posts are not completely without context, I will take the next two posts to explain: First - Who I am and how I got here, and second - a proper exposition of the problem I will (at least initially) be working on while I'm here.
 
 <!--more-->
 
@@ -38,10 +38,11 @@ Sure, not particularly interesting, but good coding practice I thought. Once I g
 The output looked like a 20 item checklist. As you cycled through inputs, the lines of text would perform a little dance as the divisors flicked on and off. There was a pleasing sort of pattern to it, the second line oscillating on and off with every next number, the third similar but instead going: on, off, off, on, off off. All of them related but not quite in sync. You could gleam something deeper was going on, but still, all of this information was being displayed in such a quaint way: lines of text of different length either affirming divisibility or stating lack thereof. Surely, _surely_, this should be represented graphically? Just literal check boxes would be superior to these verbose textual descriptions. The problem was: although I could picture in my mind what this far superior graphical replacement would look like, my programming abilities at the time were prohibitive of such an endeavour.
 
 {% include components/division_checker.html %}
+{:.info}
 
 ### Prime Factor Knitting
 
-I'm not sure how I found myself there but at some time, now long distant, I came across [this](http://sonderbooks.com/blog/?p=843) page. The wonderful Sondra Eklund had knitted a jumper with an interesting pattern.
+I'm not sure how I found myself there but at some time, now long distant, I came across [this](http://sonderbooks.com/blog/?p=843) page. The amateur book reviewer and mathematics enthusiast Sondra Eklund had knitted a jumper with an interesting pattern.
 
 ![Prime Factor Sweater](/images/pfsweater_front.jpg)
 
