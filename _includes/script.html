@@ -1,0 +1,6 @@
+<div id="{{ include.anchor_name }}"></div>
+<script>
+  var input = {{ include.input }};
+  var anchor = document.getElementById("{{ include.anchor_name }}");
+  {% include scripts/joel/{{ include.path }} %}
+</script>
