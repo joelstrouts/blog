@@ -3,17 +3,29 @@
     if (e.keyCode == 13) {
       check_divisibility();
       return false;
-    }
-    else {
+    } else if (e.keyCode == 38) {
+      increase_and_submit();
+      return false;
+    } else if (e.keyCode == 40) {
+      decrease_and_submit();
+      return false;
+    } else {
       return true;
     }
   }
 </script>
 
-<input id="division_number" type="number" onkeypress="return check_for_submit(event)">
+<input id="division_number" type="number" onkeydown="return check_for_submit(event)" onkeypress="return check_for_submit(event)">
 <input id="division_submit"
        value="submit" 
        type="submit">
+<br>
+<input id="increase_button"
+       type="button"
+       value="increase">
+<input id="decrease_button"
+       type="button"
+       value="decrease">
 <div id="output_div"></div>
 
 <script>
@@ -25,15 +37,26 @@
           response_div.removeChild(response_div.firstChild);
       }
       if (number % i == 0) {
-        response_div.appendChild(document.createTextNode("the input WAS a multiple of " + i));
+        response_div.appendChild(document.createTextNode("Your number WAS a multiple of " + i + " :)"));
       } else {
-        response_div.appendChild(document.createTextNode("the input WAS NOT a multiple of " + i));
+        response_div.appendChild(document.createTextNode("Your number WAS NOT a multiple of " + i + " :("));
       }
     }
   }
+  let increase_and_submit = function increase_and_submit() {
+    let input = document.getElementById("division_number");
+    input.value = Number.parseInt(input.value, 10) + 1;
+    check_divisibility();
+  }
+  let decrease_and_submit = function decrease_and_submit() {
+    let input = document.getElementById("division_number");
+    input.value = Number.parseInt(input.value, 10) - 1;
+    check_divisibility();
+  }
 
-  let output = document.getElementById("output_div");
-  document.getElementById("division_submit").addEventListener("click",check_divisibility, false);
+  document.getElementById("division_submit").addEventListener("click", check_divisibility, false);
+  document.getElementById("increase_button").addEventListener("click", increase_and_submit, false);
+  document.getElementById("decrease_button").addEventListener("click", decrease_and_submit, false);
 
   for (var i = 1; i <= 20; i++) {
     var response_div = document.createElement("div");

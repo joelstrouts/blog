@@ -4,7 +4,7 @@ title: Working in Hong Kong (Part 1)
 article_header:
   type: cover
   image:
-    src: /images/hongkong1.JPG
+    src: /images/hongkong1.jpg
 mathjax: true
 ---
 
@@ -15,7 +15,7 @@ For the next two months I am working in Hong Kong. While I'm here I think it wou
 
 # Who Am I?
 
-I'm a maths student (just finished my second year) at [York University](https://www.york.ac.uk). In my first year I was intent on lining up something interesting to do in the summer break, so I talked to my supervisor and he recommended looking into a programme called the Laidlaw scholarship. The purpose of the program was broadly to encourage undergraduate research. Open to all students with at least two years of their degree left before graduation. The deal was this:
+I'm a maths student (just finished my second year) at [York University](https://www.york.ac.uk). In my first year I was intent on lining up something interesting to do in the summer break, so I talked to my supervisor and he recommended looking into a programme called the Laidlaw scholarship. The purpose of the program was broadly to encourage undergraduate research. Open to all students with at least two years of their degree left before graduation. This was the deal:
 
 - Suggest a project of your own devising, complete with research plan and personal statement
 - If shortlisted then you would also be subjected to a logical reasoning test and interview process
@@ -25,20 +25,20 @@ I knew exactly what I would have _liked_ to work on as a scholarship beneficiary
 
 ## Laidlaw: The Dream Project
 
-There are two little projects I worked on long ago that I never dislodged from my mind and ended up becoming entangled with one another. The story of those two mini projects together tell the story of this bigger project I am now in the middle of. First, learning to code.
+There are two little projects I worked on long ago that I never dislodged from my mind and ended up becoming entangled with one another. The story of those two mini projects together tell the story of this bigger project I am now in the middle of. First: learning to code.
 
-### 'Simple Programming Projects'
-I was adamant, I would learn to program (to the detriment of my actual exam grades at the time). I had tried working through some courses on [codeacademy](https://codeacademy.com) but nothing really stuck, in the end what worked for me was playing around with making my own web-pages/websites[^1]. To would google 'simple programming projects' and complete anything I could. There was one project, simple remit, that really intrigued me. The task was simply to create a web page with two elements: an input box, and a submit button. When you typed a number into the box and hit submit, the idea was that the webpage would then display one of two different responses:
+### Division problems
+I was adamant (to the detriment of my actual exam grades at the time) - I _would_ learn to program. I had tried working through some courses on [codeacademy](https://codeacademy.com) but nothing really stuck, in the end what worked for me was playing around with making my own web-pages/websites[^1]. To would google 'simple programming projects' and complete anything I could. There was one project, simple remit, that really intrigued me. The task was simply to create a web page with two elements: an input box, and a submit button. When you typed a number into the box and hit submit, the idea was that the webpage would then display one of two different responses:
 
-- "your number was a multiple of 6 :)", or:
-- "Your number was not a multiple of 6 :("
+- "Your number WAS a multiple of 6 :)", or:
+- "Your number WAS NOT a multiple of 6 :("
 
 Sure, not particularly interesting, but good coding practice I thought. Once I got it working I didn't move on right away but instead tried some variations on the core idea. First: Why six? It could have been any number, so I made the divisor a variable and played around with different values. Once It could handle any divisor I tried the idea of doing two divisibility checks at once - now the program showed two lines when you submitted your number: _Is your number a multiple of 6?_ AND _Is your number a multiple of 4?_. It was still pretty boring. I tried instead not one, not two, but a bunch. At that point it became a bit more interesting.
 
 The output looked like a 20 item checklist. As you cycled through inputs, the lines of text would perform a little dance as the divisors flicked on and off. There was a pleasing sort of pattern to it, the second line oscillating on and off with every next number, the third similar but instead going: on, off, off, on, off off. All of them related but not quite in sync. You could gleam something deeper was going on, but still, all of this information was being displayed in such a quaint way: lines of text of different length either affirming divisibility or stating lack thereof. Surely, _surely_, this should be represented graphically? Just literal check boxes would be superior to these verbose textual descriptions. The problem was: although I could picture in my mind what this far superior graphical replacement would look like, my programming abilities at the time were prohibitive of such an endeavour.
 
+#### Enter a whole number
 {% include components/division_checker.html %}
-{:.info}
 
 ### Prime Factor Knitting
 
