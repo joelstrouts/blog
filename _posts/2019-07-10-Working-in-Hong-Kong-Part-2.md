@@ -101,7 +101,7 @@ graph LR
   b2-.-d2(not so difficult?)
 ```
 
-I have talked to Professor Wang and he agrees that this is a natural way of dividing up the problem, and that first I should focus on the second part, initially allowing the feature identification to be an interactive user-driven process.
+I have talked to Professor Wang and he agrees that this is a natural way of dividing up the problem, and that it would be wise to begin with that second sub-problem. To begin with the feature identification process can be performed by the user of the program interactively.
 
 ### Practical Level
 
