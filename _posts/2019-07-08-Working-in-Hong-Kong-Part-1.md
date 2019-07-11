@@ -114,4 +114,3 @@ It didn't seem wise to force the project to be collaborative if the proper impet
 The plans we made (what I will be doing now I'm here) will be outlined in the second part of this blog!
 
 [^1]: It turns out the latter is much harder than the former.
-[^2]: Or so I thought
