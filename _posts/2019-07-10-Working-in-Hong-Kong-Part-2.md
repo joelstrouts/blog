@@ -122,4 +122,6 @@ Other than that, I think that the applicability of this approach (entirely affin
 
 I must say though, once my short term goal was clear (write a simple program in any language which will generate Bernsley-Fern type fractals and allow you to vary the underlying affine transformations), I felt less bothered by the potential difficulties down the road. First, this - then that.
 
-So tomorrow I begin!
+### Conclusion
+
+I need to get on with it! Tomorrow I begin.
