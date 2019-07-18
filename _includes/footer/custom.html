@@ -1,0 +1,16 @@
+<!-- start custom head snippets -->
+{% if page.lib %}
+  <script>
+    if ('{{ page.lib }}' == 'fabric.js') {
+      {% include /scripts/lib/fabric.min.js %}
+    } else {
+      console.warn('library {{ page.lib }} not found.')
+    }
+  </script>
+{% endif %}
+{% if page.script %}
+  <script async="true" defer>
+    {% include /scripts/custom/{{ page.script }}.js %}
+  </script>
+{% endif %}
+<!-- end custom head snippets -->
