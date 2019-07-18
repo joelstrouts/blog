@@ -1,16 +1,19 @@
+
 <!-- start custom footer snippets -->
 {% if page.libs %}
-    <script>console.log('included libs were: {{ page.libs }}');</script>
-    {% capture libs-string %}{{ page.libs }}{% endcapture %}
-    {% assign libs-list = libs-string | split: "," %}
-    {% for lib in libs-list %}
-        {% assign lib = lib | strip %}
-        {% if {{ lib | strip}} == 'fabricjs' %}
-          <script>
-            {% include scripts/lib/fabric.min.js %}
-          </script>
-        {% endif %}
-    {% endfor %}
+  <script>console.log('included libs were: {{ page.libs }}');</script>
+  {% capture libs-string %}{{ page.libs }}{% endcapture %}
+  {% assign libs-list = libs-string | split: "," %}
+  {% for lib in libs-list %}
+      {% assign lib = lib | strip %}
+      {% if {{ lib | strip}} == 'fabricjs' %}
+        <script>
+          {% include scripts/lib/fabric.min.js %}
+        </script>
+      {% endif %}
+  {% endfor %}
+{% else %}
+  <script>console.log('no libraries included');</script>
 {% endif %}
 {% if page.scripts %}
     <script>console.log('included scripts were: {{ page.scripts }}');</script>
@@ -21,5 +24,7 @@
         {% include scripts/custom/{{ script | strip }}.js %}
       </script>
     {% endfor %}
+{% else %}
+  <script>console.log('no custom scripts included');</script>
 {% endif %}
 <!-- end custom footer snippets -->
