@@ -67,3 +67,6 @@ function PlotPixel(x,y)
  image[index+2]=0;	// b
  image[index+3]=255;	// alpha
 }
+
+// call function
+fern();
