@@ -1,16 +1,23 @@
-<!-- start custom head snippets -->
-{% if page.lib %}
-  <script>
-    if ('{{ page.lib }}' == 'fabric.js') {
-      {% include /scripts/lib/fabric.min.js %}
-    } else {
-      console.warn('library {{ page.lib }} not found.')
-    }
-  </script>
+<!-- start custom footer snippets -->
+{% if page.libs %}
+    {% capture libs-string %}{{ page.libs }}{% endcapture %}
+    {% assign libs-list = libs-string | split: "," %}
+    {% for lib in libs-list %}
+        {% assign lib = lib | strip %}
+        {% if {{ lib | strip}} == 'fabricjs' %}
+          <script>
+            {% include scripts/lib/fabric.min.js %}
+          </script>
+        {% endif %}
+    {% endfor %}
 {% endif %}
-{% if page.script %}
-  <script async="true" defer>
-    {% include /scripts/custom/{{ page.script }}.js %}
-  </script>
+{% if page.scripts %}
+    {% capture scripts-string %}{{ page.scripts }}{% endcapture %}
+    {% assign scripts-list = scripts-string | split: "," %}
+    {% for script in scripts-list %}
+      <script async="true" defer>
+        {% include scripts/custom/{{ script | strip }}.js %}
+      </script>
+    {% endfor %}
 {% endif %}
-<!-- end custom head snippets -->
+<!-- end custom footer snippets -->
