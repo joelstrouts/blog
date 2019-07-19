@@ -9,10 +9,10 @@ function fern() {
   var scale = (ysize - 2 * margin) / 9.9983;
   xsize = Math.floor(scale * 4.8378 + 2 * margin);
 
-  var mycanvas = document.getElementById('mycanvas');
-  mycanvas.width = xsize;
-  mycanvas.height = ysize;
-  var context = mycanvas.getContext('2d');
+  var jamesonCanvas = document.getElementById('jamesonCanvas');
+  jamesonCanvas.width = xsize;
+  jamesonCanvas.height = ysize;
+  var context = jamesonCanvas.getContext('2d');
   var imagedata = context.createImageData(xsize, ysize); // NOT ON ALL BROWSERS?
   image = imagedata.data;
 
@@ -47,7 +47,7 @@ function fern() {
   context.putImageData(imagedata, 0, 0);
 
   var timetaken = new Date().getTime() - starttime;
-  document.getElementById('report').innerHTML =
+  document.getElementById('jamesonReport').innerHTML =
     N + ' points plotted in ' + timetaken + 'ms';
 }
 
