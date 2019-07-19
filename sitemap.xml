@@ -1,25 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-<loc>http://localhost:4000/2000/01/01/Scratch.html</loc>
+<loc>https://joelstrouts.com/2000/01/01/Scratch.html</loc>
 <lastmod>2000-01-01T00:00:00+00:00</lastmod>
 </url>
 <url>
-<loc>http://localhost:4000/2019/07/08/Working-in-Hong-Kong-Part-1.html</loc>
+<loc>https://joelstrouts.com/2019/07/08/Working-in-Hong-Kong-Part-1.html</loc>
 <lastmod>2019-07-08T00:00:00+01:00</lastmod>
 </url>
 <url>
-<loc>http://localhost:4000/2019/07/10/Working-in-Hong-Kong-Part-2.html</loc>
+<loc>https://joelstrouts.com/2019/07/10/Working-in-Hong-Kong-Part-2.html</loc>
 <lastmod>2019-07-10T00:00:00+01:00</lastmod>
 </url>
 <url>
-<loc>http://localhost:4000/2019/07/14/mysterious-fern.html</loc>
-<lastmod>2019-07-14T00:00:00+01:00</lastmod>
+<loc>https://joelstrouts.com/archive.html</loc>
 </url>
 <url>
-<loc>http://localhost:4000/archive.html</loc>
-</url>
-<url>
-<loc>http://localhost:4000/</loc>
+<loc>https://joelstrouts.com/</loc>
 </url>
 </urlset>
