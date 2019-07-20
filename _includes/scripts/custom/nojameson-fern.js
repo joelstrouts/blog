@@ -1,26 +1,60 @@
-var image;
+/* image variable:
+ * this variable will contain the imagedata object
+ * The imagedata object has three parts:
+ * an array of clamped uint8s (array of integer values
+ * between 0 and 255), and the height and width.
+ * the imagedata requires four unint8s
+ * to describe each pixel (red value, green value,
+ * blue and alpha) That means that the arry should
+ * have length 4*width*height - so if the width
+ * is 50 and the height is 100, the length of
+ * the clamped uint8 array should be 20,000
+ */
+var image; 
 var xsize;
 
 function fern() {
-  var N = 500000;
-  var ysize = 752;
-  var margin = 5;
+  var N = 500000; // number of itterations (points to plot)
+  var ysize = 752; // canvas height
+  var margin = 5; // add border for aesthetic reasons
 
+  /* 
+   * 
+   * the bounds on the generated image are:
+   *
+   * ---------------------------
+   * | -2.1820 <= x <= 2.6558  |
+   * |       0 <= y <= 9.9983  |
+   * ---------------------------
+   *
+   * hence the use of these values when scaling output points
+   * to plot on the grid (note that 2.6558 + 2.1820 = 4.8378)
+   */
+
+  // we can calculate the scale by working out the ratio
+  // between the number of pixels of height the resulting image
+  // should have vs. the height of the image in the fern's coord-
+  // -inate space, ie;
   var scale = (ysize - 2 * margin) / 9.9983;
-  xsize = Math.floor(scale * 4.8378 + 2 * margin);
+  // once the scale is calculated we apply it to find out the width
+  // in pixels of the output
+  xsize = Math.floor(scale * 4.8378) + 2 * margin;
 
   var jamesonCanvas = document.getElementById('jamesonCanvas');
   jamesonCanvas.width = xsize;
   jamesonCanvas.height = ysize;
   var context = jamesonCanvas.getContext('2d');
   var imagedata = context.createImageData(xsize, ysize); // NOT ON ALL BROWSERS?
-  image = imagedata.data;
+  image = imagedata.data; // data is the clamped uint8 part of the imagedata
 
   var starttime = new Date().getTime();
 
+  // the _pixel_ coordinates of the origin point in the fern's
+  // coordinate system
   var ox = margin + Math.floor(2.182 * scale);
-  var oy = ysize - 1 - margin;
+  var oy = ysize - 1 - margin; 
 
+  // the coordiates of the start point (fern coordinates)
   var x = 0.0;
   var y = 0.0;
 
@@ -44,6 +78,8 @@ function fern() {
       y = 0.26 * oldx + 0.24 * y + 0.44;
     }
   }
+
+console.log('second script loaded succesfully')
   context.putImageData(imagedata, 0, 0);
 
   var timetaken = new Date().getTime() - starttime;
