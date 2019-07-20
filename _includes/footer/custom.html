@@ -6,14 +6,26 @@
   {% assign libs-list = libs-string | split: "," %}
   {% for lib in libs-list %}
     {% if lib == 'fabricjs' %}
-        <script>
-          {% include scripts/lib/fabric.min.js %}
-        </script>
-      {% endif %}
+      <script>
+        {% include scripts/lib/fabric.min.js %}
+      </script>
+    {% endif %}
+    {% if lib == 'tensorflow' %}
+      <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.0/dist/tf.min.js"></script>
+    {% endif %}
+    {% if lib == 'vectorious' %}
+      <script>
+        {% include scripts/lib/vectorious.min.js %}
+      </script>
+    {% endif %}
+    {% if lib == 'mathjs' %}
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.0.3/math.js"></script>
+    {% endif %}
   {% endfor %}
 {% else %}
   <script>console.log('no libraries included');</script>
 {% endif %}
+
 {% if page.scripts %}
     <script>console.log('included scripts were: {{ page.scripts }}');</script>
     {% capture scripts-string %}{{ page.scripts | replace: " ", "" }}{% endcapture %}
