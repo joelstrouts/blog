@@ -1,178 +1,78 @@
-
-const getScale = ctf => {
-  // ctf :: coordinate transform
-  return {
-    x: (ctf.x.out.right - ctf.x.out.left) / (ctf.x.in.right - ctf.x.in.left),
-    y: (ctf.y.out.right - ctf.y.out.left) / (ctf.y.in.right - ctf.y.in.left)
-  };
-};
-const getNewPostion = point => {
-  let p = [point.x,point.y];
-  let q; let ran = Math.random();
-  if (0.0 <= ran && ran < 0.01) {
-    q = math.multiply([[0, 0], [0, 0.16]], p);
-  } else if (0.01 <= ran && ran < 0.86) {
-    q = math
-      .chain(p)
-      .multiply([[0.85, -0.04], [0.04, 0.85]])
-      .add([0, 1.6])
-      .done();
-  } else if (0.86 <= ran && ran < 0.93) {
-    q = math
-      .chain(p)
-      .multiply([[0.2, 0.23], [-0.4, 0.22]])
-      .add([0, 1.6])
-      .done();
-  } else if (0.93 <= ran && ran < 1.0) {
-    q = math
-      .chain(p)
-      .multiply([[-0.15, 0.26], [0.28, 0.24]])
-      .add([0, 0.44])
-      .done();
-  }
-  return { x: q[0], y: q[1] };
-};
-const getNewPostion2 = args => {
-  let p = [args.point.x, args.point.y];
-  let q = [args.point.x, args.point.y];
-  let ran = Math.random();
-  if (0.0 <= ran && ran < 0.01) {
-    if (args.active[0]) {
-      q = math.multiply([[0, 0], [0, 0.16]], p);
-    }
-  } else if (0.01 <= ran && ran < 0.86) {
-    if (args.active[1]) {
-      q = math
-        .chain(p)
-        .multiply([[0.85, -0.04], [0.04, 0.85]])
-        .add([0, 1.6])
-        .done();
-    }
-  } else if (0.86 <= ran && ran < 0.93) {
-    if (args.active[2]) {
-      q = math
-        .chain(p)
-        .multiply([[0.2, 0.23], [-0.26, 0.22]])
-        .add([0, 1.6])
-        .done();
-    }
-  } else if (0.93 <= ran && ran < 1.0) {
-    if (args.active[3]) {
-      q = math
-        .chain(p)
-        .multiply([[-0.15, 0.26], [0.28, 0.24]])
-        .add([0, 0.44])
-        .done();
-    }
-  }
-  return { x: q[0], y: q[1] };
-};
-const myFern = (args) => {
-  const starttime = new Date().getTime();
-  const myCanvas = document.getElementById('myCanvas');
-  const context = myCanvas.getContext('2d');
-  const margin = 5;
-  const width = 373;
-  const height = 752;
-  let imageData = new ImageData(width, height);
-  const coordTransform = {
-    x: {
-      in: { left: -2.182, right: 2.6558 },
-      out: { left: 0 + margin, right: width - margin },
-    },
-    y: {
-      in: { left: 0, right: 9.9983 },
-      out: { left: height - margin, right: 0 + margin },
-    },
-  };
-  coordTransform.scale = getScale(coordTransform);
-
-  var p = { x: 0, y: 0 };
-  const itterations = args.points;
-
-  for (var i = 0; i < itterations; i++) {
-    paintPixel(p, coordTransform, imageData);
-    p = getNewPostion(p);
-  }
-  context.putImageData(imageData,0,0);
-  const timetaken = new Date().getTime() - starttime;
-  document.getElementById('myReport').innerHTML =
-    args.points + ' points plotted in ' + timetaken + 'ms';
+const apply = (p, ...functions) => {
+  return functions.reduce((value, func) => func(value) , p);
 }
-const myFern2 = (args) => {
-  const starttime = new Date().getTime();
-  const reportDiv = args.reportDiv;
-  const myCanvas = document.getElementById(args.canvas);
-  const context = myCanvas.getContext('2d');
-  const margin = 5;
-  const width = 373;
-  const height = 752;
-  const xmid = Math.floor(width/2);
-  const ymid = Math.floor(height/2);
-  let imageData = new ImageData(width, height);
-  const coordTransform1 = {
-    x: {
-      in: { left: -2.182, right: 2.6558 },
-      out: { left: 0 + margin, right: xmid },
-    },
-    y: {
-      in: { left: 0, right: 9.9983 },
-      out: { left: ymid , right: 0 + margin },
-    },
-  };
-  coordTransform1.scale = getScale(coordTransform1);
-  const coordTransform2 = {
-    x: {
-      in: { left: -2.182, right: 2.6558 },
-      out: { left: xmid, right: width - margin },
-    },
-    y: {
-      in: { left: 0, right: 9.9983 },
-      out: { left: ymid, right: 0 + margin },
-    },
-  };
-  coordTransform2.scale = getScale(coordTransform2);
-  const coordTransform3 = {
-    x: {
-      in: { left: -2.182, right: 2.6558 },
-      out: { left: 0 + margin, right: xmid },
-    },
-    y: {
-      in: { left: 0, right: 9.9983 },
-      out: { left: height - margin, right: ymid },
-    },
-  };
-  coordTransform3.scale = getScale(coordTransform3);
-  const coordTransform4 = {
-    x: {
-      in: { left: -2.182, right: 2.6558 },
-      out: { left: xmid, right: width - margin },
-    },
-    y: {
-      in: { left: 0, right: 9.9983 },
-      out: { left: height - margin, right: ymid },
-    },
-  };
-  coordTransform4.scale = getScale(coordTransform4);
-
-  var p1 = { x: 0, y: 0 };
-  var p2 = { x: 0, y: 0 };
-  var p3 = { x: 0, y: 0 };
-  var p4 = { x: 0, y: 0 };
-  const itterations = args.points;
-
-  for (var i = 0; i < itterations; i++) {
-    paintPixel(p1, coordTransform1, imageData);
-    paintPixel(p2, coordTransform2, imageData);
-    paintPixel(p3, coordTransform3, imageData);
-    paintPixel(p4, coordTransform4, imageData);
-    p1 = getNewPostion2({ point: p1, active: [false,true,true,true] });
-    p2 = getNewPostion2({ point: p2, active: [true,false,true,true] });
-    p3 = getNewPostion2({ point: p3, active: [true,true,false,true] });
-    p4 = getNewPostion2({ point: p4, active: [true,true,true,false] });
-  }
-  context.putImageData(imageData,0,0);
-  const timetaken = new Date().getTime() - starttime;
-  document.getElementById(reportDiv).innerHTML =
-    args.points * 4 + ' points plotted in ' + timetaken + 'ms';
+const getComposition = (...functions) => (point) => {
+  return functions.reduce((value, func) => func(value), point);
 }
+const getLinear = M => p => {
+  return [
+    p[0] * M[0][0] + p[1] * M[1][0],
+    p[0] * M[0][1] + p[1] * M[1][1]
+  ];
+}
+const getTranslation = c => p => vAdd(p,c);
+const getAffine = (M,c) => p => getComposition(getLinear(M), getTranslation(c))(p);
+const mScale = (a, M) => M.map(v => vScale(a, v));
+const det = ([[a,c],[b,d]]) => a*d - b*c;
+const mInverse = ([[a,c],[b,d]]) => mScale(1/(a*d - b*c), [[d,-c],[-b,a]]);
+const vScale = (a, v) => v.map((entry) => a * entry);
+const vAdd = (...vectors) => {
+  return vectors.reduce((v,w) => [v[0] + w[0], v[1] + w[1]]);
+}
+const vMinus = (v, w) => vAdd(v, vScale(-1, w));
+const zip = (list1, list2) => list1.map((value, key) => [value, list2[key]]);
+const dot = (v, w) => zip(v,w).reduce((pair1, pair2) => pair1[0] * pair1[1] + pair2[0] * pair2[1]);
+const vMod = v => Math.sqrt(v.reduce((e1, e2) => e1 * e1 + e2 * e2));
+const getCoordinateTransform = (inplex, outplex) => (point) => {
+  const rx = vMinus(inplex[1],  inplex[0]);
+  const ry = vMinus(inplex[2],  inplex[0]);
+  const rx_out = vMinus(outplex[1],  outplex[0]);
+  const ry_out = vMinus(outplex[2],  outplex[0]);
+  return getComposition(
+    getTranslation(vScale(-1, inplex[0])),
+    getLinear(mInverse([rx, ry])),
+    getLinear([rx_out, ry_out]),
+    getTranslation(outplex[0])
+  )(point);
+}
+const paintPixel = ([x,y], imgData, rgba) => {
+  const index = 4 * (y * imgData.width + x);
+  imgData.data[index] = rgba[0];
+  imgData.data[index + 1] = rgba[1];
+  imgData.data[index + 2] = rgba[2];
+  imgData.data[index + 3] = rgba[3];
+}
+const barnsleyAlg = (p) => {
+  const f1 = getLinear([[ 0.00, 0.00],[ 0.00, 0.16]]);
+  const f2 = getAffine([[ 0.85,-0.04],[ 0.04, 0.85]], [0.00,1.60]);
+  const f3 = getAffine([[ 0.20, 0.23],[-0.26, 0.22]], [0.00,1.60]);
+  const f4 = getAffine([[-0.75, 0.26],[ 0.28, 0.24]], [0.00,0.44]);
+  let q; let rand = Math.random();
+  if (0.0 <= rand && rand < 0.01) {
+    q = f1(p);
+  } else if (0.01 <= rand && rand < 0.86) {
+    q = f2(p);
+  } else if (0.86 <= rand && rand < 0.93) {
+    q = f3(p);
+  } else if (0.93 <= rand && rand < 1.0) {
+    q = f4(p);
+  }
+  return q;
+}
+const myFern = (algorithm, N, coordTransform, dims) => {
+  const imageData = new ImageData(dims[0], dims[1])
+  let p = [0,0];
+  for (var i = 0; i < N; i++) {
+    let pixelPos = coordTransform(p).map(c => Math.floor(c));
+    paintPixel(pixelPos, imageData, [0,0,255,255]);
+    p = algorithm(p);
+  }
+  return imageData;
+}
+const canvX = 373; const canvY = 752; const margin = 5;
+const myCanvas = document.getElementById('myCanvas');
+const context = myCanvas.getContext('2d');
+const inplex = [[-2.182,0],[-2.182,9.9983],[2.6558,0]]
+const outplex = [[margin, canvY - margin], [margin,margin], [canvX - margin, canvY - margin]];
+const myCtf = getCoordinateTransform(inplex, outplex);
+context.putImageData(myFern(barnsleyAlg, 100000, myCtf, [canvX, canvY]), 0, 0)
