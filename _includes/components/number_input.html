@@ -1,0 +1,49 @@
+<script>
+function check_for_submit_{{ include.varname }}(e) {
+  if (e.keyCode == 13) {
+    {{ include.varname }}_update_function();
+    return false;
+  } else if (e.keyCode == 38) {
+    increase_and_submit_{{ include.varname }}();
+    return false;
+  } else if (e.keyCode == 40) {
+    decrease_and_submit_{{ include.varname }}();
+        return false;
+      } else {
+        return true;
+  }
+}
+</script>
+
+<input id="{{ include.varname }}_number" value="{% if include.default %}{{ include.default }}{% else %}10{% endif %}" type="number" onkeydown="return check_for_submit_{{ include.varname }}(event)" onkeypress="return check_for_submit_{{ include.varname }}(event)">
+<input id="{{ include.varname }}_submit"
+       value="submit" 
+       type="submit">
+<br>
+<input id="{{ include.varname }}_increase_button"
+       type="button"
+       value="increase">
+<input id="{{ include.varname }}_decrease_button"
+       type="button"
+       value="decrease">
+
+<script>
+var {{ include.varname }} = 10;
+const {{ include.varname }}_update_function = () => {
+{{ include.varname }} = document.getElementById("{{ include.varname }}_number").value;
+{{ include.funcbody }}
+}
+let increase_and_submit_{{ include.varname }} = () =>  {
+  let input = document.getElementById("{{ include.varname }}_number");
+  input.value = Number.parseInt(input.value, 10) + 1;
+  {{ include.varname }}_update_function();
+}
+let decrease_and_submit_{{ include.varname }} = () => {
+  let input = document.getElementById("{{ include.varname }}_number");
+  input.value = Number.parseInt(input.value, 10) - 1;
+  {{ include.varname }}_update_function();
+}
+document.getElementById("{{ include.varname }}_submit").addEventListener("click", {{ include.varname }}_update_function, false);
+document.getElementById("{{ include.varname }}_increase_button").addEventListener("click", increase_and_submit_{{ include.varname }}, false);
+document.getElementById("{{ include.varname }}_decrease_button").addEventListener("click", decrease_and_submit_{{ include.varname }}, false);
+</script>
