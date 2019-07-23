@@ -3,7 +3,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Scratch - Joel Strouts</title>
 
-<meta name="description" content="">
+<meta name="description" content="Number of points to generate fern with:Try clicking submit!">
 <link rel="canonical" href="https://joelstrouts.com/2000/01/01/Scratch.html"><link rel="alternate" type="application/rss+xml" title="Joel Strouts" href="/feed.xml"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v1.1=LbyJdBL709">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png?v1.1=LbyJdBL709">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png?v1.1=LbyJdBL709">
@@ -287,11 +287,55 @@
             <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="Scratch"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>Jan 01, 2000</span>
             </li></ul></div><meta itemprop="author" content="Joel Strouts"/><meta itemprop="datePublished" content="2000-01-01T00:00:00+00:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
-<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><canvas id="mycanvas" width="373" height="752" style="background-color:#e0e0e0;">
+<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><canvas id="myCanvas" width="373" height="752" style="background-color:#e0e0e0;">
 </canvas>
 
-<div id="report" width="" height="" style="">
-</div>
+<p>Number of points to generate fern with:
+<script>
+function check_for_submit_N(e) {
+  if (e.keyCode == 13) {
+    N_update_function();
+    return false;
+  } else if (e.keyCode == 38) {
+    increase_and_submit_N();
+    return false;
+  } else if (e.keyCode == 40) {
+    decrease_and_submit_N();
+        return false;
+      } else {
+        return true;
+  }
+}
+</script></p>
+
+<p><input id="N_number" value="100000" type="number" onkeydown="return check_for_submit_N(event)" onkeypress="return check_for_submit_N(event)" />
+<input id="N_submit" value="submit" type="submit" />
+<br />
+<input id="N_increase_button" type="button" value="increase" />
+<input id="N_decrease_button" type="button" value="decrease" /></p>
+
+<script>
+var N = 10;
+const N_update_function = () => {
+N = document.getElementById("N_number").value;
+putFractal(N)
+}
+let increase_and_submit_N = () =>  {
+  let input = document.getElementById("N_number");
+  input.value = Number.parseInt(input.value, 10) + 1;
+  N_update_function();
+}
+let decrease_and_submit_N = () => {
+  let input = document.getElementById("N_number");
+  input.value = Number.parseInt(input.value, 10) - 1;
+  N_update_function();
+}
+document.getElementById("N_submit").addEventListener("click", N_update_function, false);
+document.getElementById("N_increase_button").addEventListener("click", increase_and_submit_N, false);
+document.getElementById("N_decrease_button").addEventListener("click", decrease_and_submit_N, false);
+</script>
+
+<p class="info" id="myReport">Try clicking submit!</p>
 
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2000-01-01T00:00:00+00:00"><!-- start custom article footer snippet -->
 
@@ -349,82 +393,147 @@
   
 <!-- start custom footer snippets -->
 
-  <script>console.log('no libraries included');</script>
+  <script>console.log('included libs were: mathjs');</script>
+  
+  
+  
+    
+    
+    
+    
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/6.0.3/math.js"></script>
+    
+  
 
 
-    <script>console.log('included scripts were: nojameson-fern, my-fern-vanilla');</script>
+
+    <script>console.log('included scripts were: my-fern-vanilla');</script>
     
     
     
       <script async="true" defer>
-        var image;
-var xsize;
+        /**************************/
+/* HELPER FUNCTIONS START */
+/**************************/
+/* functional essentials
+ */
+const zip = (list1, list2) => list1.map((value, key) => [value, list2[key]]);
+const getComposition = (...functions) => (point) => {
+  return functions.reduce((value, func) => func(value), point);
+}
 
-function fern() {
-  var N = 500000;
-  var ysize = 752;
-  var margin = 5;
+/* Linear algebra
+ * (vector related)
+ */
+const vScale = (a, v) => v.map((entry) => a * entry);
+const vAdd = (...vectors) => vectors.reduce((v,w) => [v[0] + w[0], v[1] + w[1]]);
+const vMinus = (v, w) => vAdd(v, vScale(-1, w));
+const vMod = v => Math.sqrt(v.reduce((e1, e2) => e1 * e1 + e2 * e2));
+const dot = (v, w) => zip(v,w).reduce((pair1, pair2) => pair1[0] * pair1[1] + pair2[0] * pair2[1]);
+const getTranslation = c => p => vAdd(p,c);
+/* (matrix related)
+ */
+const det = ([[a,c],[b,d]]) => a*d - b*c;
+const mInverse = ([[a,c],[b,d]]) => mScale(1/(a*d - b*c), [[d,-c],[-b,a]]);
+const mScale = (a, M) => M.map(v => vScale(a, v));
+const getAffine = (M,c) => p => getComposition(getLinear(M), getTranslation(c))(p);
+const getLinear = M => p => {
+  return [
+    p[0] * M[0][0] + p[1] * M[1][0],
+    p[0] * M[0][1] + p[1] * M[1][1]
+  ];
+}
 
-  var scale = (ysize - 2 * margin) / 9.9983;
-  xsize = Math.floor(scale * 4.8378 + 2 * margin);
-
-  var mycanvas = document.getElementById('mycanvas');
-  mycanvas.width = xsize;
-  mycanvas.height = ysize;
-  var context = mycanvas.getContext('2d');
-  var imagedata = context.createImageData(xsize, ysize); // NOT ON ALL BROWSERS?
-  image = imagedata.data;
-
-  var starttime = new Date().getTime();
-
-  var ox = margin + Math.floor(2.182 * scale);
-  var oy = ysize - 1 - margin;
-
-  var x = 0.0;
-  var y = 0.0;
-
-  for (var n = 1; n <= N; n++) {
-    PlotPixel(ox + Math.floor(x * scale), oy - Math.floor(y * scale));
-
-    var r = Math.floor(Math.random() * 100);
-    var oldx = x;
-    if (r == 0) {
-      x = 0.0;
-      y *= 0.16;
-    } else if (r <= 85) {
-      // tip of fern is the x,y which is invariant under this transformation i.e. x=640/241, y=2400/241
-      x = 0.85 * oldx + 0.04 * y;
-      y = -0.04 * oldx + 0.85 * y + 1.6;
-    } else if (r <= 92) {
-      x = 0.2 * oldx - 0.26 * y;
-      y = 0.23 * oldx + 0.22 * y + 1.6;
-    } else {
-      x = -0.15 * oldx + 0.28 * y;
-      y = 0.26 * oldx + 0.24 * y + 0.44;
+/* projection / drawing
+ */
+const getCoordinateTransform = (inplex, outplex) => (point) => {
+  const rx = vMinus(inplex[1],  inplex[0]);
+  const ry = vMinus(inplex[2],  inplex[0]);
+  const rx_out = vMinus(outplex[1],  outplex[0]);
+  const ry_out = vMinus(outplex[2],  outplex[0]);
+  return getComposition(
+    getTranslation(vScale(-1, inplex[0])),
+    getLinear(mInverse([rx, ry])),
+    getLinear([rx_out, ry_out]),
+    getTranslation(outplex[0])
+  )(point);
+}
+const paintPixel = ([x,y], imgData, rgba) => {
+  const index = 4 * (y * imgData.width + x);
+  imgData.data[index] += rgba[0];
+  imgData.data[index + 1] += rgba[1];
+  imgData.data[index + 2] += rgba[2];
+  imgData.data[index + 3] += rgba[3];
+}
+const paintPixelBox = ([x,y], imgData, rgba, size) => {
+  for (var i = - size; i < size; i++) {
+    for (var j = - size; j < size; j++) {
+    const index = 4 * ((y + j) * imgData.width + (x + i));
+    imgData.data[index] = rgba[0];
+    imgData.data[index + 1] = rgba[1];
+    imgData.data[index + 2] = rgba[2];
+    imgData.data[index + 3] = rgba[3];
     }
   }
-  context.putImageData(imagedata, 0, 0);
-
-  var timetaken = new Date().getTime() - starttime;
-  document.getElementById('report').innerHTML =
-    N + ' points plotted in ' + timetaken + 'ms';
 }
+/************************/
+/* HELPER FUNCTIONS END */
+/************************/
 
-function PlotPixel(x, y) {
-  var index = 4 * (y * xsize + x);
-  image[index] = 0; // r
-  image[index + 1] = 0xc0; // g
-  image[index + 2] = 0; // b
-  image[index + 3] = 255; // alpha
+
+/************************/
+/* USAGE / SETUP START: */
+/************************/
+/* (rendering)
+ */
+const canvX = 373; const canvY = 752; const margin = 50;
+const myCanvas = document.getElementById('myCanvas');
+const context = myCanvas.getContext('2d');
+const inplex = [[-2.182,0],[-2.182,9.9983],[2.6558,0]]
+const outplex = [[margin, canvY - margin], [margin,margin], [canvX - margin, canvY - margin]];
+const myCtf = getCoordinateTransform(inplex, outplex);
+/* (algorithms)
+ */
+const barnsleyAlg = (p) => {
+  // they are: base, stem copies, left frond, right frond.
+  const f1 = getLinear([[ 0.00, 0.00],[ 0.00, 0.16]]);
+  const f2 = getAffine([[ 0.85,-0.04],[ 0.04, 0.85]], [0.00,1.60]);
+  const f3 = getAffine([[ 0.20, 0.23],[-0.26, 0.22]], [0.00,1.60]);
+  const f4 = getAffine([[-0.15, 0.26],[ 0.28, 0.24]], [0.00,0.44]);
+  let q; let rand = Math.random();
+  if (0.0 <= rand && rand < 0.01) {
+    q = f1(p);
+  } else if (0.01 <= rand && rand < 0.86) {
+    q = f2(p);
+  } else if (0.86 <= rand && rand < 0.93) {
+    q = f3(p);
+  } else if (0.93 <= rand && rand < 1.0) {
+    q = f4(p);
+  }
+  return q;
 }
-
-// call function
-fern();
-
-      </script>
-    
-      <script async="true" defer>
-        console.log('second script loaded succesfully')
+/* (API)
+ */
+const getFractal = (algorithm, N, coordTransform, imgDataSpecs) => {
+  const imageData = new ImageData(imgDataSpecs[0], imgDataSpecs[1]);
+  let p = [0,0];
+  for (var i = 0; i < N; i++) {
+    let pixelPos = coordTransform(p).map(c => Math.floor(c));
+    paintPixelBox(pixelPos, imageData, [0,160,0,255], 1);
+    p = algorithm(p);
+  }
+  return imageData;
+}
+const putFractal = n => {
+  const starttime = new Date().getTime();
+  context.putImageData(getFractal(barnsleyAlg, n, myCtf, [canvX, canvY]), 0, 0);
+  const timetaken = new Date().getTime() - starttime;
+  document.getElementById('myReport').innerHTML =
+    n + ' points plotted in ' + timetaken + 'ms';
+}
+/**********************/
+/* USAGE / SETUP END: */
+/**********************/
 
       </script>
     
