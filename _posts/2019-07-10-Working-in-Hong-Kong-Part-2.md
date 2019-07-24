@@ -41,7 +41,7 @@ f_{4}(x,y)=\begin{bmatrix}0.00 & 0.00\\0.00 & 0.16\end{bmatrix}\phantom{-}&\begi
 }
 $$
 
-Where each function is what we call an [_affine translation_](https://www.wikipedia.org/wiki/Affine_transformation), meaning they can be described by a combination of a linear transformation and a translation. Affine transformations let you shift and stretch your input in many ways, only dissalowing changes which would cause straight lines to become curved.
+Where each function is what we call an [_affine transformation_](https://www.wikipedia.org/wiki/Affine_transformation), meaning they can be described by a combination of a linear transformation and a translation. Affine transformations let you shift and stretch your input in many ways, only dissalowing changes which would cause straight lines to become curved.
 
 ![Affine transformations generating the barnsley fern](/images/fern-affines.png)
 
@@ -80,7 +80,7 @@ That was pretty much the suggestion. I was not downtrodden that the Professor ha
 
 ### The Dilemma / The Conclusion
 
-What about my original project? I secured my place on the scholarship program, at least superficially, for the express purpose of realising that idea. So although the prospect on working with Professor Wang at HKU was very exciting, it was not clear that it was the best thing to do. I asked Professor Wang if it would be possible to comprimise and instead divide the time available evenly between work on my own project and on the problem he suggested. He responded that this was in theory possible but not optimal because he would not be able to contribute as much to my project so my being there would be of less use. Very understandable objection! I talked to the scholarship team in York and in the end we decided it was best to take the original offer. The scholarship is actually more about personal development than specific project outcomes. The opportunities to learn and grow as a person by taking this chance far outweighed what was offered by my other options. It still feels a bit wrong to have abandoned my project like that though, so, I have not shelved it completely. I'd like to frame what's happening as more of a beating to windward sort of situation - and in the end my project will be the better for it.
+What about my original project? I secured my place on the scholarship program, at least superficially, for the express purpose of realising that idea. So although the prospect on working with Professor Wang at HKU was very exciting, it was not clear that it was the best thing to do. I asked Professor Wang if it would be possible to compromise and instead divide the time available evenly between work on my own project and on the problem he suggested. He responded that this was in theory possible but not optimal because he would not be able to contribute as much to my project so my being there would be of less use. Very understandable objection! I talked to the scholarship team in York and in the end we decided it was best to take the original offer. The scholarship is actually more about personal development than specific project outcomes. The opportunities to learn and grow as a person by taking this chance far outweighed what was offered by my other options. It still feels a bit wrong to have abandoned my project like that though, so, I have not shelved it completely. I'd like to frame what's happening as more of a beating to windward sort of situation - and in the end my project will be the better for it.
 
 ## The Plan
 
