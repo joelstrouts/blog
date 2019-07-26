@@ -22,6 +22,9 @@ const getTranslation = c => p => vAdd(p,c);
 const det = ([[a,c],[b,d]]) => a*d - b*c;
 const mInverse = ([[a,c],[b,d]]) => mScale(1/(a*d - b*c), [[d,-c],[-b,a]]);
 const mScale = (a, M) => M.map(v => vScale(a, v));
+const mProduct = (...matricies) => matricies.reduce(
+  (A, B) => [getLinear(A)(B[0]), getLinear(A)(B[1])]
+);
 const getAffine = (M,c) => p => getComposition(getLinear(M), getTranslation(c))(p);
 const getLinear = M => p => {
   return [
@@ -29,6 +32,12 @@ const getLinear = M => p => {
     p[0] * M[0][1] + p[1] * M[1][1]
   ];
 }
+/* DISCRETE MATHS
+ */
+const ipart = x => Math.floor(x);
+const round = x => ipart(x + 0.5);
+const fpart = x => x - Math.floor(x);
+const rfpart = x => 1 - fpart(x);
 
 /* PROJECTION / DRAWING
  */
@@ -63,19 +72,62 @@ const paintPixelBox = ([x,y], imgData, rgba, size) => {
   }
 }
 
-// TODO: implement this draw line function properly
-// const drawLine = ([x1,y1], [x2,y2], imgData, rgba) => {
-//   let dx = x2 - x1; let dy = y2 - y1;
-//   if (dx === dy) {
-//     for (var i = 0; i <= dx; i++) {
-//       paintPixel([x1 + Math.sign(dx) * i, y1 + Math.sign(dy) * i], imgData, rgba);
-//     }
-//   }
-// }
+const drawLine = ([x1,y1], [x2,y2], imgData, rgb) => {
+  let steep = Math.abs(y2 - y1) > Math.abs(x1 - x2);
+  if (steep)   { [x1, y1] = [y1, x1]; [x2, y2] = [y2, x2]; }
+  if (x1 > x2) { [x1, x2] = [x2, x1]; [y1, y2] = [y2, y1]; }
+  let dx = x2 - x1;
+  let dy = y2 - y1;
+  let m = dy / dx;
+  if (dx === 0) { m = 1 }
+   
+  // first end point
+  let xend = round(x1);
+  let yend = y1 + m * (xend - x1);
+  let xgap = rfpart(x1 + 0.5)
+  let xpxl1 = xend;
+  let ypxl1 = ipart(yend);
+  if (steep) {
+    paintPixel([ypxl1, xpxl1],     imgData, Array.concat(rgb, rfpart(yend) * xgap * 255));
+    paintPixel([ypxl1 + 1, xpxl1], imgData, Array.concat(rgb,  fpart(yend) * xgap * 255));
+  } else {
+    paintPixel([xpxl1, ypxl1],     imgData, Array.concat(rgb, rfpart(yend) * xgap * 255));
+    paintPixel([xpxl1, ypxl1 + 1], imgData, Array.concat(rgb,  fpart(yend) * xgap * 255));
+  }
+  let intery = yend + m;
+
+  // second end point
+  xend = round(x2);
+  yend = y2 + m * (xend - x2);
+  xgap = fpart(x2 + 0.5)
+  let xpxl2 = xend;
+  let ypxl2 = ipart(yend);
+  if (steep) {
+    paintPixel([ypxl2, xpxl2],     imgData, Array.concat(rgb, rfpart(yend) * xgap * 255));
+    paintPixel([ypxl2 + 1, xpxl2], imgData, Array.concat(rgb, fpart(yend) * xgap * 255));
+  } else {
+    paintPixel([xpxl2, ypxl2],     imgData, Array.concat(rgb, rfpart(yend) * xgap * 255));
+    paintPixel([xpxl2, ypxl2 + 1], imgData, Array.concat(rgb,  fpart(yend) * xgap * 255));
+  }
+
+  // line inbetween
+  if (steep) {
+    for (var x = xpxl1 + 1; x < xpxl2; x++) {
+      paintPixel([ipart(intery), x],     imgData, Array.concat(rgb, rfpart(intery) * 255));
+      paintPixel([ipart(intery) + 1, x], imgData, Array.concat(rgb,  fpart(intery) * 255));
+      intery = intery + m;
+    }
+  } else {
+    for (var x = xpxl1 + 1; x < xpxl2; x++) {
+      paintPixel([x, ipart(intery)],     imgData, Array.concat(rgb, rfpart(intery) * 255));
+      paintPixel([x, ipart(intery) + 1], imgData, Array.concat(rgb,  fpart(intery) * 255));
+      intery = intery + m;
+    }
+  }
+}
 /************************/
 /* HELPER FUNCTIONS END */
 /************************/
-
 
 /************************/
 /*    PRESETS           */
@@ -90,20 +142,31 @@ const randomLinear = () => {
   return getLinear([[r[0], r[1]], [r[2], r[3]]], [r[4], r[5]]);
 }
 
-const getFractal = (def, N) => {
+const getFractal = (def, N, type) => {
   const imageData = new ImageData(
     def.canvasDimensions[0], def.canvasDimensions[1]
   );
   let p = [0,0];
+  if(type == 'lines') {
+    paintPixelBox(def.ctf(p).map(e => Math.floor(e)), imageData, [0, 160, 100, 255], 4);
+  }
   for (var i = 0; i < N; i++) {
-    let pixelPos = def.ctf(p).map(c => Math.floor(c));
-    paintPixel(pixelPos, imageData, [0,160,0,255]);
-    p = def.algorithm(p);
+    let q = def.algorithm(p);
+    let [a, b] = [p,q].map(v => def.ctf(v).map(e => Math.floor(e)));
+    if (type == 'dots' || !type) {
+      paintPixel(b, imageData, Array.concat(Fractal.color, 255));
+    } else if (type == 'blobs') {
+      paintPixelBox(b, imageData, Array.concat(Fractal.color, 255), 1);
+    } else if (type == 'lines') {
+      drawLine(a, b, imageData, Fractal.color);
+      paintPixelBox(b, imageData, Array.concat(Fractal.color, 255), 4);
+    }
+    p = q;
   }
   return imageData;
 }
 const Fractal = {
-  get: (def, n) => {
+  init: (def) => {
     def.ctf = getCoordinateTransform(
       def.referenceRegion,
       [
@@ -113,8 +176,10 @@ const Fractal = {
       ]
     ),
     def.init();
-    def.initialised = true;
-    return getFractal(def, n)
+  },
+  get: (def, n, type) => {
+    Fractal.init(def);
+    return getFractal(def, n, type);
   }
 }
 
@@ -133,12 +198,45 @@ const barnsleyFern = {
     let q; let rand = Math.random();
     if (0.0 <= rand && rand < 0.01) {
       q = f1(p);
-    } else if (0.01 <= rand && rand < 0.86) {
+      Fractal.color = [200, 110, 0];
+    } else if (rand < 0.86) {
       q = f2(p);
-    } else if (0.86 <= rand && rand < 0.93) {
+      Fractal.color = [190, 0, 150];
+    } else if (rand < 0.93) {
       q = f3(p);
-    } else if (0.93 <= rand && rand < 1.0) {
+      Fractal.color = [0, 200, 0];
+    } else if (rand < 1.0) {
       q = f4(p);
+      Fractal.color = [0, 50, 200];
+    }
+    return q;
+  }
+}
+const binaryTree = {
+  initialised: false,
+  init: x => x,
+  margin: 40,
+  canvasDimensions: [373, 752],
+  referenceRegion: [[-0.5,0],[-0.5,1],[0.5,0]],
+  algorithm: (p) => {
+    // they are: base, stem copies, left frond, right frond.
+    const f1 = getLinear([[ 0.01, 0.00],[ 0.00, 0.45]]);
+    const f2 = getAffine([[-0.01,-0.04],[ 0.00,-0.45]], [0.00, 0.40]);
+    const f3 = getAffine([[ 0.42, 0.42],[-0.42, 0.42]], [0.00, 0.40]);
+    const f4 = getAffine([[ 0.42,-0.42],[ 0.42, 0.42]], [0.00, 0.40]);
+    let q; let rand = Math.random();
+    if (0.0 <= rand && rand < 0.25) {
+      q = f1(p);
+      Fractal.color = [200, 110, 0];
+    } else if (rand < 0.5) {
+      q = f2(p);
+      Fractal.color = [190, 0, 150];
+    } else if (rand < 0.75) {
+      q = f3(p);
+      Fractal.color = [0, 200, 0];
+    } else if (rand < 1.0) {
+      q = f4(p);
+      Fractal.color = [0, 50, 200];
     }
     return q;
   }
@@ -167,31 +265,67 @@ const mapleLeaf = {
     return q;
   }
 }
-const random = {
+const sandDollar = {
   initialised: false,
-  init: () => {
-    random.transforms = [
-      randomAffine(),
-      randomAffine(),
-      randomAffine(),
-      randomAffine(),
-    ]
-    console.log(random.transforms)
-  },
+  init: x => x,
   margin: 40,
   canvasDimensions: [373, 752],
-  referenceRegion: [[-3,-4],[-3,5],[3,-4]],
+  referenceRegion: [[0,0],[0,1],[1,0]],
   algorithm: (p) => {
+    // they are: base, stem copies, left frond, right frond.
+    const f1 = getAffine([[ 0.382, 0.0100],[ 0.0000, 0.382]], [0.3090, 0.5700]);
+    const f2 = getAffine([[ 0.118, 0.3630],[-0.3630, 0.118]], [0.3633, 0.3306]);
+    const f3 = getAffine([[ 0.118,-0.3630],[ 0.3630, 0.118]], [0.5187, 0.6940]);
+    const f4 = getAffine([[-0.309, 0.2245],[-0.2245,-0.309]], [0.6070, 0.3090]);
+    const f5 = getAffine([[-0.309,-0.2245],[ 0.2245,-0.309]], [0.7016, 0.5335]);
+    const f6 = getAffine([[ 0.382, 0.0000],[ 0.0000,-0.382]], [0.3090, 0.6770]);
     let q; let rand = Math.random();
-    if (0.0 <= rand && rand < 0.2) {
-      q = random.transforms[0](p);
-    } else if (0.2 <= rand && rand < 0.4) {
-      q = random.transforms[1](p);
-    } else if (0.4 <= rand && rand < 0.7) {
-      q = random.transforms[2](p);
-    } else if (0.7 <= rand && rand < 1.0) {
-      q = random.transforms[3](p);
+    if (0.0 <= rand && rand < 0.166) {
+      Fractal.color = [255,0,0];
+      q = f1(p);
+    } else if (rand < 0.333) {
+      Fractal.color = [0,255,0];
+      q = f2(p);
+    } else if (rand < 0.5) {
+      Fractal.color = [0,0,255];
+      q = f3(p);
+    } else if (rand < 0.666) {
+      Fractal.color = [255,255,0];
+      q = f4(p);
+    } else if (rand < 0.833) {
+      Fractal.color = [0,200,200];
+      q = f5(p);
+    } else if (rand < 1.0) {
+      Fractal.color = [200,0,200];
+      q = f6(p);
     }
+    return q;
+  }
+}
+const random = {
+  num: 4,
+  initialised: false,
+  init: () => {
+    random.transforms = [];
+    for (var i = 0; i < random.num; i++) {
+      random.transforms = Array.concat(random.transforms, randomAffine());
+    }
+  },
+  transforms: [],
+  margin: 60,
+  canvasDimensions: [373, 752],
+  referenceRegion: [[-1,-1],[-1,1],[1,-1]],
+  colors: [
+    [200, 110, 0],
+    [190, 0, 150],
+    [0, 200, 0],
+    [0, 50, 200],
+    [255, 50, 200],
+  ],
+  algorithm: (p) => {
+    let q; let rand = Math.floor(Math.random() * 100) % random.num;
+    Fractal.color = random.colors[rand];
+    q = random.transforms[rand](p);
     return q;
   }
 }
