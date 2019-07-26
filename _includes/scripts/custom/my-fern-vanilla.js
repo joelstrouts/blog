@@ -38,6 +38,15 @@ const ipart = x => Math.floor(x);
 const round = x => ipart(x + 0.5);
 const fpart = x => x - Math.floor(x);
 const rfpart = x => 1 - fpart(x);
+const cummulative = list => {
+  let returnList = [list[0]];
+  let runningTotal = list[0];
+  for (var i = 1; i < list.length; i++) {
+    runningTotal += list[i];
+    returnList = Array.concat(returnList, runningTotal);
+  }
+  return returnList;
+}
 
 /* PROJECTION / DRAWING
  */
@@ -142,24 +151,44 @@ const randomLinear = () => {
   return getLinear([[r[0], r[1]], [r[2], r[3]]], [r[4], r[5]]);
 }
 
-const getFractal = (def, N, type) => {
+const getFractal = (def, N, providedOptions) => {
   const imageData = new ImageData(
-    def.canvasDimensions[0], def.canvasDimensions[1]
+    def.canvasDimensions[0],
+    def.canvasDimensions[1]
   );
   let p = [0,0];
-  if(type == 'lines') {
-    paintPixelBox(def.ctf(p).map(e => Math.floor(e)), imageData, [0, 160, 100, 255], 4);
+  let options = {};
+  if (providedOptions) {
+    options = providedOptions;
+    if (!options.style)  { options.style = Fractal.defaultOptions.style; }
+    if (!options.color)  { options.color = Fractal.defaultOptions.color; }
+    if (!options.colors) { options.colors = Fractal.defaultOptions.colors; }
+  } else {
+    options = Fractal.defaultOptions;
+  }
+
+  // MAIN LOOP
+  if(options.style == 'lines') {
+    // draw initial point before the main loop begins
+    let pixelOrigin = def.ctf(p).map(e => Math.floor(e));
+    paintPixelBox(pixelOrigin, imageData, Array.concat(color, 255), 4);
+  }
+  let thisColor;
+  if (options.color == 'last') {
+    thisColor = () => options.colors[Fractal.lastTransform];
+  } else {
+    thisColor = () => options.colors[0];
   }
   for (var i = 0; i < N; i++) {
-    let q = def.algorithm(p);
+    let q = Fractal.applyTransform(def)(p);
     let [a, b] = [p,q].map(v => def.ctf(v).map(e => Math.floor(e)));
-    if (type == 'dots' || !type) {
-      paintPixel(b, imageData, Array.concat(Fractal.color, 255));
-    } else if (type == 'blobs') {
-      paintPixelBox(b, imageData, Array.concat(Fractal.color, 255), 1);
-    } else if (type == 'lines') {
-      drawLine(a, b, imageData, Fractal.color);
-      paintPixelBox(b, imageData, Array.concat(Fractal.color, 255), 4);
+    if (options.style == 'dots') {
+      paintPixel(b, imageData, Array.concat(thisColor(), 255));
+    } else if (options.style == 'blobs') {
+      paintPixelBox(b, imageData, Array.concat(thisColor(), 255), 1);
+    } else if (options.style == 'lines') {
+      drawLine(a, b, imageData, Fractal.thisColor());
+      paintPixelBox(b, imageData, Array.concat(thisColor(), 255), 4);
     }
     p = q;
   }
@@ -174,47 +203,53 @@ const Fractal = {
         [def.margin, def.margin], 
         [def.canvasDimensions[0] - def.margin, def.canvasDimensions[1] - def.margin]
       ]
-    ),
-    def.init();
+    )
+    def.probBins = cummulative(def.probabilities);
+    if (def.init) { def.init(); }
   },
-  get: (def, n, type) => {
+  get: (def, n, drawingMethod, coloringMethod) => {
     Fractal.init(def);
-    return getFractal(def, n, type);
+    return getFractal(def, n, drawingMethod, coloringMethod);
+  },
+  applyTransform: def => p => {
+    let rand = Math.random();
+    let choice = 0;
+    while (rand > def.probBins[choice]) { choice += 1; }
+    Fractal.lastTransform = choice;
+    return def.transforms[choice](p);
+  },
+  defaultOptions: {
+    style: 'dots',
+    color: 'uniform',
+    colors: [
+      [0, 200, 0],
+      [190, 0, 150],
+      [200, 110, 0],
+      [210, 0, 0],
+      [0, 0, 200],
+      [40, 40, 40],
+    ],
   }
 }
 
 const barnsleyFern = {
-  initialised: false,
-  init: x => x,
   margin: 40,
   canvasDimensions: [373, 752],
   referenceRegion: [[-2.182,0],[-2.182,9.9983],[2.6558,0]],
-  algorithm: (p) => {
-    // they are: base, stem copies, left frond, right frond.
-    const f1 = getLinear([[ 0.00, 0.00],[ 0.00, 0.16]]);
-    const f2 = getAffine([[ 0.85,-0.04],[ 0.04, 0.85]], [0.00,1.60]);
-    const f3 = getAffine([[ 0.20, 0.23],[-0.26, 0.22]], [0.00,1.60]);
-    const f4 = getAffine([[-0.15, 0.26],[ 0.28, 0.24]], [0.00,0.44]);
-    let q; let rand = Math.random();
-    if (0.0 <= rand && rand < 0.01) {
-      q = f1(p);
-      Fractal.color = [200, 110, 0];
-    } else if (rand < 0.86) {
-      q = f2(p);
-      Fractal.color = [190, 0, 150];
-    } else if (rand < 0.93) {
-      q = f3(p);
-      Fractal.color = [0, 200, 0];
-    } else if (rand < 1.0) {
-      q = f4(p);
-      Fractal.color = [0, 50, 200];
-    }
-    return q;
-  }
+  transforms: [
+    getLinear([[ 0.00, 0.00],[ 0.00, 0.16]]),
+    getAffine([[ 0.85,-0.04],[ 0.04, 0.85]], [0.00,1.60]),
+    getAffine([[ 0.20, 0.23],[-0.26, 0.22]], [0.00,1.60]),
+    getAffine([[-0.15, 0.26],[ 0.28, 0.24]], [0.00,0.44]),
+  ],
+  probabilities: [
+    0.01,
+    0.85,
+    0.07,
+    0.07,
+  ],
 }
 const binaryTree = {
-  initialised: false,
-  init: x => x,
   margin: 40,
   canvasDimensions: [373, 752],
   referenceRegion: [[-0.5,0],[-0.5,1],[0.5,0]],
@@ -242,90 +277,48 @@ const binaryTree = {
   }
 }
 const mapleLeaf = {
-  initialised: false,
   margin: 40,
   canvasDimensions: [373, 752],
   referenceRegion: [[-3,-4],[-3,5],[3,-4]],
-  algorithm: (p) => {
-    // they are: base, stem copies, left frond, right frond.
-    const f1 = getAffine([[ 0.14, 0.00],[ 0.01, 0.51]], [-0.08,-1.31]);
-    const f2 = getAffine([[ 0.43,-0.45],[ 0.52, 0.50]], [ 1.49,-0.75]);
-    const f3 = getAffine([[ 0.45, 0.47],[-0.49, 0.47]], [-1.62,-0.74]);
-    const f4 = getAffine([[ 0.49, 0.00],[ 0.00, 0.51]], [ 0.02, 1.62]);
-    let q; let rand = Math.random();
-    if (0.0 <= rand && rand < 0.01) {
-      q = f1(p);
-    } else if (0.01 <= rand && rand < 0.86) {
-      q = f2(p);
-    } else if (0.86 <= rand && rand < 0.93) {
-      q = f3(p);
-    } else if (0.93 <= rand && rand < 1.0) {
-      q = f4(p);
-    }
-    return q;
-  }
+  transforms: [
+    getAffine([[ 0.14, 0.00],[ 0.01, 0.51]], [-0.08,-1.31]),
+    getAffine([[ 0.43,-0.45],[ 0.52, 0.50]], [ 1.49,-0.75]),
+    getAffine([[ 0.45, 0.47],[-0.49, 0.47]], [-1.62,-0.74]),
+    getAffine([[ 0.49, 0.00],[ 0.00, 0.51]], [ 0.02, 1.62]),
+  ],
+  probabilities: [
+    0.01,
+    0.85,
+    0.07,
+    0.07,
+  ],
 }
 const sandDollar = {
-  initialised: false,
-  init: x => x,
   margin: 40,
   canvasDimensions: [373, 752],
   referenceRegion: [[0,0],[0,1],[1,0]],
-  algorithm: (p) => {
-    // they are: base, stem copies, left frond, right frond.
-    const f1 = getAffine([[ 0.382, 0.0100],[ 0.0000, 0.382]], [0.3090, 0.5700]);
-    const f2 = getAffine([[ 0.118, 0.3630],[-0.3630, 0.118]], [0.3633, 0.3306]);
-    const f3 = getAffine([[ 0.118,-0.3630],[ 0.3630, 0.118]], [0.5187, 0.6940]);
-    const f4 = getAffine([[-0.309, 0.2245],[-0.2245,-0.309]], [0.6070, 0.3090]);
-    const f5 = getAffine([[-0.309,-0.2245],[ 0.2245,-0.309]], [0.7016, 0.5335]);
-    const f6 = getAffine([[ 0.382, 0.0000],[ 0.0000,-0.382]], [0.3090, 0.6770]);
-    let q; let rand = Math.random();
-    if (0.0 <= rand && rand < 0.166) {
-      Fractal.color = [255,0,0];
-      q = f1(p);
-    } else if (rand < 0.333) {
-      Fractal.color = [0,255,0];
-      q = f2(p);
-    } else if (rand < 0.5) {
-      Fractal.color = [0,0,255];
-      q = f3(p);
-    } else if (rand < 0.666) {
-      Fractal.color = [255,255,0];
-      q = f4(p);
-    } else if (rand < 0.833) {
-      Fractal.color = [0,200,200];
-      q = f5(p);
-    } else if (rand < 1.0) {
-      Fractal.color = [200,0,200];
-      q = f6(p);
-    }
-    return q;
-  }
+  transforms: [
+    getAffine([[ 0.382, 0.0100],[ 0.0000, 0.382]], [0.3090, 0.5700]),
+    getAffine([[ 0.118, 0.3630],[-0.3630, 0.118]], [0.3633, 0.3306]),
+    getAffine([[ 0.118,-0.3630],[ 0.3630, 0.118]], [0.5187, 0.6940]),
+    getAffine([[-0.309, 0.2245],[-0.2245,-0.309]], [0.6070, 0.3090]),
+    getAffine([[-0.309,-0.2245],[ 0.2245,-0.309]], [0.7016, 0.5335]),
+    getAffine([[ 0.382, 0.0000],[ 0.0000,-0.382]], [0.3090, 0.6770]),
+  ],
+  probabilities: Array(6).fill(1/6),
 }
 const random = {
+  margin: 60,
+  canvasDimensions: [373, 752],
+  referenceRegion: [[-1,-1],[-1,1],[1,-1]],
   num: 4,
-  initialised: false,
+  transforms: [], // defined on function call
+  probabilities: [], // ditto
   init: () => {
     random.transforms = [];
     for (var i = 0; i < random.num; i++) {
       random.transforms = Array.concat(random.transforms, randomAffine());
     }
+    random.probabilities = Array(random.num).fill(1/random.num);
   },
-  transforms: [],
-  margin: 60,
-  canvasDimensions: [373, 752],
-  referenceRegion: [[-1,-1],[-1,1],[1,-1]],
-  colors: [
-    [200, 110, 0],
-    [190, 0, 150],
-    [0, 200, 0],
-    [0, 50, 200],
-    [255, 50, 200],
-  ],
-  algorithm: (p) => {
-    let q; let rand = Math.floor(Math.random() * 100) % random.num;
-    Fractal.color = random.colors[rand];
-    q = random.transforms[rand](p);
-    return q;
-  }
 }
