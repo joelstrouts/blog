@@ -134,6 +134,12 @@ const drawLine = ([x1,y1], [x2,y2], imgData, rgb) => {
     }
   }
 }
+const drawPolygon = (verts, imgData, rgba) => {
+  let rgb = rgba.slice(0,3);
+  verts = verts.concat([verts[0]]);
+  verts.map(p => { paintPixelBox(p, imgData, rgba, 4); return p});
+  verts.reduce((a,b) => { drawLine(a,b,imgData,rgb); return b; });
+}
 /************************/
 /* HELPER FUNCTIONS END */
 /************************/
@@ -163,21 +169,34 @@ const getFractal = (def, N, providedOptions) => {
     if (!options.style)  { options.style = Fractal.defaultOptions.style; }
     if (!options.color)  { options.color = Fractal.defaultOptions.color; }
     if (!options.colors) { options.colors = Fractal.defaultOptions.colors; }
+    if (!options.bboxes) { options.bboxes = Fractal.defaultOptions.bboxes; }
   } else {
     options = Fractal.defaultOptions;
   }
+  let thisColor;
+  if (options.color == 'last') {
+    Fractal.lastTransform = 0;
+    thisColor = () => options.colors[Fractal.lastTransform];
+  } else {
+    thisColor = () => options.colors[0];
+  }
 
+  if (options.bboxes) {
+    let [a,b,d] = def.referenceRegion; c = vAdd(b, vMinus(d, a));
+    let [p,q,r,s] = [a,b,c,d].map(p => def.getPixel(p));
+    drawPolygon([p,q,r,s], imageData, thisColor());
+    Fractal.lastTransform = 0;
+    def.transforms.map(f => {
+      [p,q,r,s] = [a,b,c,d].map(p => def.getPixel(f(p)));
+      drawPolygon([p,q,r,s], imageData, thisColor());
+      Fractal.lastTransform += 1;  
+    })
+  }
   // MAIN LOOP
   if(options.style == 'lines') {
     // draw initial point before the main loop begins
     let pixelOrigin = def.ctf(p).map(e => Math.floor(e));
-    paintPixelBox(pixelOrigin, imageData, Array.concat(color, 255), 4);
-  }
-  let thisColor;
-  if (options.color == 'last') {
-    thisColor = () => options.colors[Fractal.lastTransform];
-  } else {
-    thisColor = () => options.colors[0];
+    paintPixelBox(pixelOrigin, imageData, Array.concat(thisColor(), 255), 4);
   }
   for (var i = 0; i < N; i++) {
     let q = Fractal.applyTransform(def)(p);
@@ -187,8 +206,8 @@ const getFractal = (def, N, providedOptions) => {
     } else if (options.style == 'blobs') {
       paintPixelBox(b, imageData, Array.concat(thisColor(), 255), 1);
     } else if (options.style == 'lines') {
-      drawLine(a, b, imageData, Fractal.thisColor());
-      paintPixelBox(b, imageData, Array.concat(thisColor(), 255), 4);
+      drawLine(a, b, imageData, thisColor());
+      paintPixelBox(b, imageData, Array.concat(thisColor(), 255), 3);
     }
     p = q;
   }
@@ -196,16 +215,17 @@ const getFractal = (def, N, providedOptions) => {
 }
 const Fractal = {
   init: (def) => {
+    if (def.init) {
+      def.init(); 
+    }
     def.ctf = getCoordinateTransform(
-      def.referenceRegion,
-      [
+      def.referenceRegion, [
         [def.margin, def.canvasDimensions[1] - def.margin], 
         [def.margin, def.margin], 
         [def.canvasDimensions[0] - def.margin, def.canvasDimensions[1] - def.margin]
-      ]
-    )
+    ]);
+    def.getPixel = p => def.ctf(p).map(e => Math.floor(e));
     def.probBins = cummulative(def.probabilities);
-    if (def.init) { def.init(); }
   },
   get: (def, n, drawingMethod, coloringMethod) => {
     Fractal.init(def);
@@ -229,6 +249,7 @@ const Fractal = {
       [0, 0, 200],
       [40, 40, 40],
     ],
+    bboxes: false,
   }
 }
 
@@ -253,45 +274,25 @@ const binaryTree = {
   margin: 40,
   canvasDimensions: [373, 752],
   referenceRegion: [[-0.5,0],[-0.5,1],[0.5,0]],
-  algorithm: (p) => {
-    // they are: base, stem copies, left frond, right frond.
-    const f1 = getLinear([[ 0.01, 0.00],[ 0.00, 0.45]]);
-    const f2 = getAffine([[-0.01,-0.04],[ 0.00,-0.45]], [0.00, 0.40]);
-    const f3 = getAffine([[ 0.42, 0.42],[-0.42, 0.42]], [0.00, 0.40]);
-    const f4 = getAffine([[ 0.42,-0.42],[ 0.42, 0.42]], [0.00, 0.40]);
-    let q; let rand = Math.random();
-    if (0.0 <= rand && rand < 0.25) {
-      q = f1(p);
-      Fractal.color = [200, 110, 0];
-    } else if (rand < 0.5) {
-      q = f2(p);
-      Fractal.color = [190, 0, 150];
-    } else if (rand < 0.75) {
-      q = f3(p);
-      Fractal.color = [0, 200, 0];
-    } else if (rand < 1.0) {
-      q = f4(p);
-      Fractal.color = [0, 50, 200];
-    }
-    return q;
-  }
+  transforms: [
+    getLinear([[ 0.01, 0.00],[ 0.00, 0.45]]),
+    getAffine([[-0.01,-0.04],[ 0.00,-0.45]], [0.00, 0.40]),
+    getAffine([[ 0.42, 0.42],[-0.42, 0.42]], [0.00, 0.40]),
+    getAffine([[ 0.42,-0.42],[ 0.42, 0.42]], [0.00, 0.40]),
+  ],
+  probabilities: Array(4).fill(1/4),
 }
 const mapleLeaf = {
   margin: 40,
   canvasDimensions: [373, 752],
   referenceRegion: [[-3,-4],[-3,5],[3,-4]],
   transforms: [
-    getAffine([[ 0.14, 0.00],[ 0.01, 0.51]], [-0.08,-1.31]),
+    getAffine([[-0.30, 0.00],[ 0.01,-0.51]], [-0.08,-1.31]),
     getAffine([[ 0.43,-0.45],[ 0.52, 0.50]], [ 1.49,-0.75]),
     getAffine([[ 0.45, 0.47],[-0.49, 0.47]], [-1.62,-0.74]),
     getAffine([[ 0.49, 0.00],[ 0.00, 0.51]], [ 0.02, 1.62]),
   ],
-  probabilities: [
-    0.01,
-    0.85,
-    0.07,
-    0.07,
-  ],
+  probabilities: Array(4).fill(1/4),
 }
 const sandDollar = {
   margin: 40,
