@@ -79,7 +79,6 @@ function fern() {
     }
   }
 
-console.log('second script loaded succesfully')
   context.putImageData(imagedata, 0, 0);
 
   var timetaken = new Date().getTime() - starttime;

@@ -1,0 +1,11 @@
+<canvas id="my-canvas" height="700" width="600" hidden="true"></canvas>
+<input id="my-button" type="button" value="click here to generate a fern!">
+
+ <script>
+  let canvas = document.getElementById('my-canvas');
+  let button = document.getElementById('my-button');
+  button.onclick = () => {
+    canvas.hidden = false;
+    paint(canvas, IFS.get(barnsleyFern, 250000, {colors: [[255,0,0]]}));
+  }
+ </script>

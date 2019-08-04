@@ -1,7 +1,6 @@
 ---
 layout: article
-scripts: my-fern-vanilla
-libs: mathjs
+scripts: IFS
 article_header:
   type: cover
   image:
@@ -15,8 +14,7 @@ A brief update. An important work milestone and a vignette of how I spend my wil
 
 # A Carafe out of place
 
-[(song to accompany this post)](https://www.youtube.com/watch?v=nI6nfACLPKQ)
-{:.info}
+> [(song to accompany this post)](https://www.youtube.com/watch?v=nI6nfACLPKQ)
 
 My plan read "_write next blog by saturday_".
 
@@ -35,10 +33,7 @@ The one area of my life I am most guilty of this anxiety-inducing dogged pursuit
 I am willing to endure so much frustration in the name of reducing frustration. This week has been a frustration filled one, and now - at it's end - I have reached the bit with the gains and it's pretty nice, Check it out! 
 
 ## The Goods
-{% include components/canvas.html id="myCanvas" width="373" height="752" style="background-color:#e0e0e0;" %}
-Number of points to generate fern with:
-{% include components/number_input.html varname="N" funcbody="putFractal(N)" default="100000" %}
-{% include components/elem.html elemName="p" optionsString="class='info' id='myReport'" content="Try clicking submit!" %}
+{% include components/fern-demo.html %}
 
 Assuming it worked, and there's a box above this paragraph that a fern is drawn in when you press the submit button - I am pretty chuffed. The reason I'm questioning whether I've used my time well is because the 'real' work in producing that image was (to describe what I've done in the least favourable way) just me copying someone else's code. What took the rest of the time, (or actually, most of the time) was all of the secondary stuff - the behind the scenes organisational stuff. I wanted it all _just so_. Does the plumbing really need to be gilded? Well I've absolutely gilded this plumbing and, at the end of the day, I'm chuffed with the result. I had to rearrange all the bookshelves, move the bed to the other side of the room, replace all chevrons with stippling, but this; my little website setup - I can sleep soundly one more night with it like this.
 
