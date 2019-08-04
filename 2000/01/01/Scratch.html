@@ -355,10 +355,7 @@
     
     
       <script async="true" defer>
-        // TODO: replace margin parameter with scale parameter as a means for
-// making the central image take up more or less of the overall
-// canvas.
-// TODO: add functionality to write a report on each last generation
+        // TODO: add functionality to write a report on each last generation
 // TODO: add functionality to save last random system of equations
 // in placeholder IFS variable
 // Thought about inverse problem:
@@ -442,7 +439,6 @@ const cummulative = list => {
   }
   return returnList;
 }
-const constrain = (x, bounds) => Math.max(Math.min(x,bounds[1],bounds[0]));
 
 /* PROJECTION / DRAWING
  */
@@ -461,33 +457,33 @@ const getOutputRegion = (referenceRegion, canvas, options) => {
   let outputRegion = { o: [0,0], x: [1,0], y: [0,1] };
   switch (options.position) {
     case 'centre':
-      let inX = vMod(referenceRegion.x), inY = vMod(referenceRegion.y),
-          canvX = canvas.width,          canvY = canvas.height,
-          outX,                          outY;
-      if (inY / inX > canvY / canvX) { // slack width
-        outY = canvY;
-        outX = Math.floor((inX / inY) * canvY);
-        let slack = canvX - outX;
-        outputRegion = { 
-          o: [
-            Math.floor(slack / 2) + options.margin,
-            outY - options.margin
-          ],
-          x: [outX - 2 * options.margin, 0],
-          y: [0, - outY + 2 * options.margin],
-        }
+      // input region is R, output region is S - given heights and widths.
+      // f: R -> S
+      let R = [vMod(referenceRegion.x), vMod(referenceRegion.y)],
+          Rratio = R[1]/R[0];
+          S = [],
+          VP = [canvas.width, canvas.height],
+          VPratio = VP[1]/VP[0];
+          middle = vScale(1/2, VP);
+      if (Rratio > VPratio) { // slack width
+        S = [
+          Math.floor((1 / Rratio) * VP[1] * options.scale), 
+          Math.floor(VP[1] * options.scale)
+        ];
       } else { // slack height
-        outX = canvX;
-        outY = Math.abs(Math.floor((inY / inX) * canvX));
-        outputRegion = { 
-          o: [
-            options.margin, 
-            outY + Math.floor(canvY - outY) / 2 - options.margin
-          ],
-          x: [outX - 2 * options.margin, 0],
-          y: [0, 2 * options.margin - outY],
-        }
+        S = [
+          Math.floor(VP[0] * options.scale), 
+          Math.floor(Rratio * VP[0] * options.scale)
+        ];
       }
+      outputRegion = { 
+        o: [
+          Math.floor(middle[0] - S[0]/2),
+          Math.floor(middle[0] + S[1]/2),
+        ],
+        x: [ S[0], 0 ],
+        y: [ 0, - S[1] ],
+        }
       break;
   }
   return outputRegion;
@@ -627,7 +623,7 @@ const IFS = {
     blobsSize: 1,
     initialPoint: [0,0],
     position: 'centre',
-    margin: 40,
+    scale: 0.9,
   },
 }
 const getIFS = (def, N, options) => {

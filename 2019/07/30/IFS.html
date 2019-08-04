@@ -355,26 +355,24 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
 <!-- contains the whole bit to be embedded in the page -->
 <div style="background-color: #f5f5f5; padding: 20px; border-radius: 2.1rem; ">
   <!-- contains the visualisations -->
-  <div id="canvas-container" hidden="true">
-  <canvas id="frame-canvas" height="600" width="700" style="margin-right: auto; margin-left: auto; margin-bottom: 2rem; display: block;"></canvas>
+  <div id="canvas-container" hidden="true" style="margin-bottom: 0.5rem">
   </div>
   <!-- contains report on last generation -->
   <div></div>
   <!-- contains the buttons -->
-  <div>
-    <input style="background-color: #ddd" type="button" name="preset" value="Barnsley Fern" alt="barnsleyFern" />
-    <input style="background-color: #ddd" type="button" name="preset" value="Maple Leaf" alt="mapleLeaf" />
-    <input style="background-color: #ddd" type="button" name="preset" value="Binary Tree" alt="binaryTree" />
-    <input style="background-color: #ddd" type="button" name="preset" value="Serpinski" alt="serpinski" />
-    <input style="background-color: #ddd" type="button" name="preset" value="Sand Dollar" alt="sandDollar" />
-    <input style="background-color: #ddd" type="button" name="preset" value="Random" alt="random" />
+  <div id="presets">
+    <input style="background-color: #ddd" type="button" value="Barnsley Fern" alt="barnsleyFern" />
+    <input style="background-color: #ddd" type="button" value="Maple Leaf" alt="mapleLeaf" />
+    <input style="background-color: #ddd" type="button" value="Binary Tree" alt="binaryTree" />
+    <input style="background-color: #ddd" type="button" value="Serpinski" alt="serpinski" />
+    <input style="background-color: #ddd" type="button" value="Sand Dollar" alt="sandDollar" />
+    <input style="background-color: #ddd" type="button" value="Random" alt="random" />
   </div>
   <!-- contains the textual desctiption -->
   <h4 id="frame-title">↑ Select one of the above predefined rule sets to apply procedure to ↑</h4>
   <div id="slide-controls" hidden="true">
     <input style="background-color: #ddd" type="button" value="previous slide" id="previous-button" />
     <input style="background-color: #ddd" type="button" value="next slide" id="next-button" />
-    <input style="background-color: #ddd; margin-left: 30px" type="button" value="refresh image" id="refresh-button" />
   </div>
   <div id="frame-description-container">
   <p style="padding: 0.5rem 1rem; border-top: 1px solid #333333; font-size: 1.1em;" id="frame-description"></p>
@@ -404,7 +402,7 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
       title:
       "II. The very first iteration",
       description:
-      "<i>This</i> is the core process. We take the position of the last point we plotted (in this case the only point) and we use one of the rules to decide where to move it to. Here the last point (the starting point) has been marked in red, and the new point is marked in black. NOTE: you may have not noticed any change between this slide and the last slide. If that is the case it is because the transformation that was applied mapped the initial position right back onto itself. If you re-run the program you will see that the new position is not the same every time - a different one of the transformation rules is chosen at random each time.",
+      "<i>This</i> is the core process. We take the position of the last point we plotted (in this case the only point) and we use one of the rules to decide where to move it to. Here the last point (the starting point) has been marked in red, and the new point is marked in black. NOTE: you may have not noticed any change between this slide and the last slide. If that is the case it is because the transformation that was applied mapped the initial position right back onto itself. <b>If you re-run the process</b> (you can do this by clicking again on the preset you wish to load, or clicking on the canvas itself) you will see that the new position is not the same every time - a different one of the transformation rules is chosen at random each time.",
       imageData: () => IFS.get(eval(preset), 1, {style: 'lines', blobsSize: 3}),
     },
     { // III
@@ -469,17 +467,23 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
 <script>
   // functions
   // events / content
-  let currentFrame = 0;
+  let slideNum = 0;
   let preset = 'binaryTree';
-  let presets = document.getElementsByName('preset');
-  for(var i = 0; i < presets.length; i++) {
-    presets[i].onclick = (e) => {
-      preset = e.originalTarget.alt;
-      for(var j = 0; j < presets.length; j++) {
-          presets[j].style = "background-color: #ddd; font-weight: lighter"
-      }
-      e.originalTarget.style = "background-color: #ddd; font-weight: normal;"
-      getFrame(frames[currentFrame]);
+  let presets = [...document.getElementById('presets').childNodes];
+  let loadPreset = (e) => {
+    preset = e.originalTarget.alt;
+    for(var i = 0; i < presets.length; i++) {
+        presets[i].style = "background-color: #ddd; font-weight: lighter"
+    }
+    e.originalTarget.style = "background-color: #ddd; font-weight: normal;"
+    getFrame(frames[slideNum]);
+  }
+  for (index in presets) {
+    if(presets[index].nodeName == 'INPUT') {
+      presets[index].onclick = (e) => {
+        preset = e.target.alt;
+        getFrame(frames[slideNum]);
+      };
     }
   }
   let frameDescriptionContainer = document.getElementsByName('frame-description-container');
@@ -487,25 +491,40 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
   let prevButton = document.getElementById('previous-button');
   let frameDescription = document.getElementById('frame-description');
   let frameTitle = document.getElementById('frame-title');
-  let frameCanvas = document.getElementById('frame-canvas');
-  let frameContext = frameCanvas.getContext('2d');
-  let refreshButton = document.getElementById('refresh-button');
+  let frameCanvas;
+  let frameContext;
   let slideControls = document.getElementById('slide-controls');
   let canvasContainer = document.getElementById('canvas-container');
+  let options = 
   nextButton.onclick = () => { 
-    currentFrame = (currentFrame + 1 + 10) % 10;
-    getFrame(frames[currentFrame]);
+    slideNum = (slideNum + 1 + 10) % 10;
+    getFrame(frames[slideNum]);
   };
   prevButton.onclick = () => { 
-    currentFrame = (currentFrame - 1 + 10) % 10;
-    getFrame(frames[currentFrame]);
+    slideNum = (slideNum - 1 + 10) % 10;
+    getFrame(frames[slideNum]);
   };
-  refreshButton.onclick = () => paint(frameCanvas,frames[currentFrame].imageData());
   const getFrame = (frame) => {
-    canvasContainer.hidden = false;
+    if (canvasContainer.hidden == true) {
+      canvasContainer.hidden = false;
+      frameCanvas = document.createElement('canvas');
+      canvasContainer.appendChild(frameCanvas);
+      let containerWidth = canvasContainer.offsetWidth;
+      frameCanvas.style = "margin-right:auto; margin-left:auto; display:block;"
+      frameCanvas.width = containerWidth;
+      frameCanvas.height = containerWidth;
+      frameCanvas.onclick = () => paint(frameCanvas, frames[slideNum].imageData());
+    }
     slideControls.hidden = false;
     frameTitle.innerHTML = frame.title;
     frameDescription.innerHTML = frame.description;
+    if (preset == 'random' || preset == 'mapleLeaf') {
+      IFS.defaultOptions.scale = 0.7;
+    } else if (preset == 'binaryTree') {
+      IFS.defaultOptions.scale = 0.8;
+    } else {
+      IFS.defaultOptions.scale = 0.9;
+    }
     paint(frameCanvas, frame.imageData());
   }
 </script>
@@ -592,10 +611,7 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
     
     
       <script async="true" defer>
-        // TODO: replace margin parameter with scale parameter as a means for
-// making the central image take up more or less of the overall
-// canvas.
-// TODO: add functionality to write a report on each last generation
+        // TODO: add functionality to write a report on each last generation
 // TODO: add functionality to save last random system of equations
 // in placeholder IFS variable
 // Thought about inverse problem:
@@ -679,7 +695,6 @@ const cummulative = list => {
   }
   return returnList;
 }
-const constrain = (x, bounds) => Math.max(Math.min(x,bounds[1],bounds[0]));
 
 /* PROJECTION / DRAWING
  */
@@ -698,33 +713,33 @@ const getOutputRegion = (referenceRegion, canvas, options) => {
   let outputRegion = { o: [0,0], x: [1,0], y: [0,1] };
   switch (options.position) {
     case 'centre':
-      let inX = vMod(referenceRegion.x), inY = vMod(referenceRegion.y),
-          canvX = canvas.width,          canvY = canvas.height,
-          outX,                          outY;
-      if (inY / inX > canvY / canvX) { // slack width
-        outY = canvY;
-        outX = Math.floor((inX / inY) * canvY);
-        let slack = canvX - outX;
-        outputRegion = { 
-          o: [
-            Math.floor(slack / 2) + options.margin,
-            outY - options.margin
-          ],
-          x: [outX - 2 * options.margin, 0],
-          y: [0, - outY + 2 * options.margin],
-        }
+      // input region is R, output region is S - given heights and widths.
+      // f: R -> S
+      let R = [vMod(referenceRegion.x), vMod(referenceRegion.y)],
+          Rratio = R[1]/R[0];
+          S = [],
+          VP = [canvas.width, canvas.height],
+          VPratio = VP[1]/VP[0];
+          middle = vScale(1/2, VP);
+      if (Rratio > VPratio) { // slack width
+        S = [
+          Math.floor((1 / Rratio) * VP[1] * options.scale), 
+          Math.floor(VP[1] * options.scale)
+        ];
       } else { // slack height
-        outX = canvX;
-        outY = Math.abs(Math.floor((inY / inX) * canvX));
-        outputRegion = { 
-          o: [
-            options.margin, 
-            outY + Math.floor(canvY - outY) / 2 - options.margin
-          ],
-          x: [outX - 2 * options.margin, 0],
-          y: [0, 2 * options.margin - outY],
-        }
+        S = [
+          Math.floor(VP[0] * options.scale), 
+          Math.floor(Rratio * VP[0] * options.scale)
+        ];
       }
+      outputRegion = { 
+        o: [
+          Math.floor(middle[0] - S[0]/2),
+          Math.floor(middle[0] + S[1]/2),
+        ],
+        x: [ S[0], 0 ],
+        y: [ 0, - S[1] ],
+        }
       break;
   }
   return outputRegion;
@@ -864,7 +879,7 @@ const IFS = {
     blobsSize: 1,
     initialPoint: [0,0],
     position: 'centre',
-    margin: 40,
+    scale: 0.9,
   },
 }
 const getIFS = (def, N, options) => {
