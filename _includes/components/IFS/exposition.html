@@ -1,0 +1,164 @@
+<!-- 
+  TODO:
+  - add final slide with interactive options for controlling
+  all parameters
+  - add feature to reveal report on previously loaded system of
+  equations on hover
+  - reimplement radio buttons so clickable area is much greater
+-->
+<!-- contains the whole bit to be embedded in the page -->
+<div style="background-color: #f5f5f5; padding: 20px; border-radius: 2.1rem; ">
+  <!-- contains the visualisations -->
+  <div id="canvas-container" hidden="true">
+  <canvas id="frame-canvas" height="600" width="700" style="margin-right: auto; margin-left: auto; margin-bottom: 2rem; display: block;" ></canvas>
+  </div>
+  <!-- contains report on last generation -->
+  <div></div>
+  <!-- contains the buttons -->
+  <div>
+    <input style="background-color: #ddd" type="button" name="preset" value="Barnsley Fern" alt="barnsleyFern">
+    <input style="background-color: #ddd" type="button" name="preset" value="Maple Leaf" alt="mapleLeaf">
+    <input style="background-color: #ddd" type="button" name="preset" value="Binary Tree" alt="binaryTree">
+    <input style="background-color: #ddd" type="button" name="preset" value="Serpinski" alt="serpinski">
+    <input style="background-color: #ddd" type="button" name="preset" value="Sand Dollar" alt="sandDollar">
+    <input style="background-color: #ddd" type="button" name="preset" value="Random" alt="random">
+  </div>
+  <!-- contains the textual desctiption -->
+  <h4 id="frame-title">↑ Select one of the above predefined rule sets to apply procedure to ↑</h4>
+  <div id='slide-controls' hidden='true'>
+    <input style="background-color: #ddd" type="button" value="previous slide" id="previous-button">
+    <input style="background-color: #ddd" type="button" value="next slide" id="next-button">
+    <input style="background-color: #ddd; margin-left: 30px" type="button" value="refresh image" id="refresh-button">
+  </div>
+  <div id="frame-description-container">
+  <p style="padding: 0.5rem 1rem; border-top: 1px solid #333333; font-size: 1.1em;" id="frame-description"></p>
+  </div>
+</div>
+
+<!-- all the logic/ content to include in that scaffold -->
+
+<!-- data to be interacted with -->
+<script>
+  let frames = [
+    { // 0
+      title:
+      "The final result of the image generation process.",
+      description:
+      'This is what we are going to build up to - the final result. The only information needed to generate this image is knowledge of the self-similar transformations that characterise it. How exactly is knowledge of these transformations applied to produce such an image though? That is what we are going to walk through step by step in this slideshow.',
+      imageData: () => IFS.get(eval(preset), 250000),
+    },
+    { // I
+      title:
+      "I. The initial starting point",
+      description:
+      "We start with just one point. For simplicity's sake, the coordinates of this point are chosen to be (0,0), but it actually doesn't matter where you choose to begin. In generating these images the point that you start with is moved around so many times that the importance of that first position is, in the end, thouroughly eroded. Like the classic street magic trick where you have to follow the ball underneath the three cups, after a while it seems impossible to determine where it all began anyway. NOTE: although the starting position may appear to be different for each choice of fractal, actually the red point is always (0,0). What's going on is that in each case we are looking at a different section of the cartesian plane.",
+      imageData: () => IFS.get(eval(preset), 0, {style: 'blobs', blobsSize: 3}),
+    },
+    { // II
+      title:
+      "II. The very first iteration",
+      description:
+      "<i>This</i> is the core process. We take the position of the last point we plotted (in this case the only point) and we use one of the rules to decide where to move it to. Here the last point (the starting point) has been marked in red, and the new point is marked in black. NOTE: you may have not noticed any change between this slide and the last slide. If that is the case it is because the transformation that was applied mapped the initial position right back onto itself. If you re-run the program you will see that the new position is not the same every time - a different one of the transformation rules is chosen at random each time.",
+      imageData: () => IFS.get(eval(preset), 1, {style: 'lines', blobsSize: 3}),
+    },
+    { // III
+      title:
+      "III. More iterations, colorised",
+      description:
+      "We make one small change to our method while things are still simple and uncluttered: we colour the lines and the points differently according to which transformation rule was responsible for each motion. The colours themselves are not significant, but lines with the same colour correspond to movements caused by the same transformation rule. This way it's a little easier to see what's happening under the hood.",
+      imageData: () => IFS.get(eval(preset), 5, {style: 'lines', color: 'last', blobsSize: 3}),
+      // function call:
+      // IFS.get(eval(preset), 5, {style: 'lines', color: 'last'});
+    },
+    { // IV
+      title:
+      "IV. 50 Steps in, some patterns emerge.",
+      description:
+      "Here we plot the path that our first point follows as we apply this process over and over again, more and more times. Slowly, what seems chaotic shows form. From erratic motions to repeated patterns. Though the path is far from perfectly tracing the pattern we are seeking, we start to see its characteristics in the regions that are visited and revisited.",
+      imageData: () => IFS.get(eval(preset), 50, {style: 'lines', color: 'last', blobsSize: 3}),
+      // function call:
+      // IFS.get(eval(preset), 10-1000, {style: 'lines', color: 'last'});
+    },
+    { // V
+      title:
+      "V. The output after 2000 of these random jumps",
+      description:
+      "This is perhaps my favourite step in the process. It is absolutely clear now that these rules when applied together produce something orderly, but the resulting form is still so messy and confusing. The step that nicely straddles the unpredictable beginnings and the completely predetermined end.",
+      imageData: () => IFS.get(eval(preset), 2000, {style: 'lines', color: 'last', blobsSize: 0}),
+      // function call:
+      // IFS.get(eval(preset), 10,0000, {style: 'lines', color: 'last'});
+    },
+    { // VI
+      title:
+      "VI. What you see when you remove all the connecting lines",
+      description:
+      "The path becomes so tangled and self-crossing that it is easier to appreciate what's going on by actually giving up on following the movements and instead just focusing the spots which were visited along the way. Less ball of thread, more breadcrumbs. As we dot around, following one transformation after another, we place a marker at each resting place, colored according to the transformation responsible for its last motion. The result is much more sparse but much more orderly. The only thing left to do now is repeat the process many more times to flesh out the picture.",
+      imageData: () => IFS.get(eval(preset), 2000, {color: 'last'}),
+    },
+    { // VII
+      title:
+      "VII. Cranking up the iterations from 2,000 to 100,000",
+      description:
+      "And suddenly the shape comes into focus, and refreshing the picture seems to have little effect other than to cause the dancing of points around their already well settled places. It turns out these positions were in some way inevitable.",
+      imageData: () => IFS.get(eval(preset), 100000, {color: 'last'}),
+    },
+    { // VIII
+      title:
+      "VIII. Superimposing the bounding boxes to indicate the different rules",
+      description:
+      "Here we make one last addition to our visual exposition; one box surrounding the entire input region, and then one coloured output box for each rule making up the fractal definition. In this way the impact of each transformation is made absolutely apparent.",
+      imageData: () => IFS.get(eval(preset), 100000, {color: 'last', bboxes: true}),
+    },
+    { // IX
+      title:
+      "IX. Ending where we started",
+      description:
+      "By removing the didactic coloring and inclusion of bounding boxes to indicate the transformations at work, we find ourselves back where we started - the process of generating the fractal from its transformation-specification is complete.",
+      imageData: () => IFS.get(eval(preset), 250000, {color: 'uniform'}),
+    },
+  ];
+</script>
+<!-- interaction handling -->
+<script>
+  // functions
+  // events / content
+  let currentFrame = 0;
+  let preset = 'binaryTree';
+  let presets = document.getElementsByName('preset');
+  for(var i = 0; i < presets.length; i++) {
+    presets[i].onclick = (e) => {
+      preset = e.originalTarget.alt;
+      for(var j = 0; j < presets.length; j++) {
+          presets[j].style = "background-color: #ddd; font-weight: lighter"
+      }
+      e.originalTarget.style = "background-color: #ddd; font-weight: normal;"
+      getFrame(frames[currentFrame]);
+    }
+  }
+  let frameDescriptionContainer = document.getElementsByName('frame-description-container');
+  let nextButton = document.getElementById('next-button');
+  let prevButton = document.getElementById('previous-button');
+  let frameDescription = document.getElementById('frame-description');
+  let frameTitle = document.getElementById('frame-title');
+  let frameCanvas = document.getElementById('frame-canvas');
+  let frameContext = frameCanvas.getContext('2d');
+  let refreshButton = document.getElementById('refresh-button');
+  let slideControls = document.getElementById('slide-controls');
+  let canvasContainer = document.getElementById('canvas-container');
+  nextButton.onclick = () => { 
+    currentFrame = (currentFrame + 1 + 10) % 10;
+    getFrame(frames[currentFrame]);
+  };
+  prevButton.onclick = () => { 
+    currentFrame = (currentFrame - 1 + 10) % 10;
+    getFrame(frames[currentFrame]);
+  };
+  refreshButton.onclick = () => paint(frameCanvas,frames[currentFrame].imageData());
+  const getFrame = (frame) => {
+    canvasContainer.hidden = false;
+    slideControls.hidden = false;
+    frameTitle.innerHTML = frame.title;
+    frameDescription.innerHTML = frame.description;
+    paint(frameCanvas, frame.imageData());
+  }
+</script>
