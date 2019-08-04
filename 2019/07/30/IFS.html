@@ -1,0 +1,1638 @@
+<!DOCTYPE html><html lang="en">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Iterated Function Systems / Crayon Impressions of Leaves - Joel Strouts</title>
+
+<meta name="description" content="I am about half way through my time working here and I have reached a crucial turning point in my research. All this time the goal has been to make progress ...">
+<link rel="canonical" href="https://joelstrouts.com/2019/07/30/IFS.html"><link rel="alternate" type="application/rss+xml" title="Joel Strouts" href="/feed.xml"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v1.1=LbyJdBL709">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png?v1.1=LbyJdBL709">
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png?v1.1=LbyJdBL709">
+<link rel="manifest" href="/assets/site.webmanifest?v1.1=LbyJdBL709">
+<link rel="mask-icon" href="/assets/safari-pinned-tab.svg?v1.1=LbyJdBL709" color="#3237c7">
+<link rel="shortcut icon" href="/assets/favicon.ico?v1.1=LbyJdBL709">
+<meta name="msapplication-TileColor" content="#2b5797">
+<meta name="msapplication-config" content="/assets/browserconfig.xml?v1.1=LbyJdBL709">
+<meta name="theme-color" content="#2b5797">
+
+<link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.4',
+      sources: {
+        font_awesome: 'https://use.fontawesome.com/releases/v5.0.13/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script></head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 800 800" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(1.21274,0,0,1.21274,-75.7331,-93.4479)">
+        <path d="M562.395,295.627C560.512,297.025 551.242,322.774 551.162,324.287C550.731,332.429 554.595,376.434 554.31,376.49C504.401,386.25 433.863,370.182 428.223,368.608C425.472,367.841 421.343,328.303 421.343,327.585C421.343,300.939 451.363,257.227 454.015,254.586C455.824,252.783 523.202,252.674 540.831,242.653C566.401,228.118 584.997,216.537 584.752,213.213C580.554,156.171 576.428,158.554 572.543,160.746C558.803,168.5 518.566,191.722 504.374,192.927C470.037,195.845 402.849,187.281 345.468,170.318L345.42,170.206C302.039,211.417 261.028,265.322 246.386,296.517C240.335,309.411 240.326,355.868 240.171,371.644C240.128,376.105 240.128,380.869 188.629,355.985C185.628,354.534 184.897,332.639 185.094,303.227C185.229,282.95 218.824,224.544 218.168,222.076C217.206,218.459 194.361,170.605 171.285,157.282C170.663,156.923 134.358,140.73 132.317,142.728C128.134,146.826 78.95,199.88 62.448,247.982C62.354,248.257 102.395,266.913 109.232,271.357C110.502,272.183 128.166,293.086 128.435,295.415L128.75,295.545C124.41,330.321 92.164,381.391 103.598,392.678C150.283,438.764 174.943,446.333 206.608,477.997C214.523,485.912 159.36,559.11 159.36,559.11C159.36,559.11 129.186,546.323 128.891,546.141L128.509,546.036C128.204,546.201 102.043,565.938 102.043,565.938C102.043,565.938 137.853,650.31 148.665,647.413C191.92,635.823 210.804,618.251 274.058,600.863C289.55,596.604 317.655,650.066 345.601,671.212L345.61,671.215C408.646,579.615 438.911,512.775 439.792,508.038C441.131,498.74 438.527,444.74 437.665,433.264C455.966,435.467 511.966,440.992 551.541,442.306C555.424,479.527 562.321,545.792 562.321,545.792L562.33,545.778C562.33,545.778 623.166,572.938 657.342,588.185C678.267,554.57 711.052,508.834 722.11,494.087C711.741,489.095 663.673,464.35 656.29,458.542C652.628,455.41 609.877,395.78 562.066,295.39"/>
+    </g>
+</svg>
+<a title="My personal website.
+" href="/">Joel Strouts</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/archive.html">Archive</a></li><li class="navigation__item"><a href="/about.html">About</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><img class="article__header--cover" src="/images/streetshot1a.jpg"></img><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div></aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet --><article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>Iterated Function Systems / Crayon Impressions of Leaves</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="Edit on Github"
+            href="https://github.com/joelstrouts/joelstrouts.github.io/tree/master/_posts/2019-07-30-IFS.md">
+            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="Iterated Function Systems / Crayon Impressions of Leaves"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>Jul 30, 2019</span>
+            </li></ul></div><meta itemprop="author" content="Joel Strouts"/><meta itemprop="datePublished" content="2019-07-30T00:00:00+01:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><p>I am about half way through my time working here and I have reached a crucial turning point in my research. All this time the goal has been to make progress on the reverse engineering problem, but it was first necessary to familiarise myself with the forward-engineering. I am <em>now</em> familiar with that forward-engineering. In this post I sum up what I’ve learned and embelish the descriptions with pretty outputs from the program I wrote.</p>
+
+<!-- more -->
+<blockquote>
+  <p>Note: if you’re not drawn in by technical details, don’t go! Skip to <a href="#the-image-generation-process-presented-interactively-and-step-by-step">the interactive demonstration</a> I’m very proud of it! Maybe the details will be more interesting after some intriguing pictures.</p>
+</blockquote>
+
+<p>There’s this one detail about the creation of these fractal images that really confused me to begin with (and stil to an extent now, although familiarity softens much frustration), and that’s what I’d like to talk about here. It’s this mismatch between the theory as I understood it, and the actual methods used in practice which didn’t seem at all related to that theory.</p>
+
+<p>Here’s how I originally understood the process used to generate reproductions of fractal images:</p>
+<ul>
+  <li>these fractals have smaller copies of themselves embedded within themselves</li>
+  <li>if you specifed the exact way that the copies were embedded, then you could reproduce the image by repeatedly making copies according to that rule</li>
+  <li>For example: if you started with the stem of the fern, then copying it around over and over again, making smaller and smaller copies of that one stem, you would end up with a skeletal model of the same fern that - after enough iterations - would look just like the original.</li>
+</ul>
+
+<p>My reading on the topic of IFS fractals has informed me that this conception is not quite in line with the common formal definition. This is the gist of the mathematical formulation:</p>
+<ul>
+  <li>Rules for how to make copies define a ‘contraction’ on the input space. (this is the formal way of saying the copies must be <em>smaler</em> than the original region, which makes intuitive sense because if that was not the case the process would grow outwards endlessly rather than settling down inwardly)</li>
+  <li>the visual form we call the ‘fractal’ corresponds to the set of all points that are invariant under this contraction. ie. After applying all the rules, if the resulting set of points is identical to the set you started with then that set was invariant under the contraction, so you have identified the fractal set, called the attractor.</li>
+  <li>this set of points is called the ‘attractor’ because no matter the region you start with, the application of the contraction rule always reduces the difference between the input region and the fractal set (an observation which can formalised by defining a distance function on the set of all compact regions in the space; the Hausdorf distance).</li>
+  <li>It is therefore possible to generate an image of the attractor by choosing some reasonable starting set then repeatedly applying the contraction to that region until its form has mangled into one that ceases to change significantly on further contractive iterations.</li>
+</ul>
+
+<p>Now <em>that</em> is all well and good, but here’s the screwy thing: the method for generating these images is nothing like either of those descriptions. Nothing like it.</p>
+
+<p>I’m going to describe the actual method which is used in detail so hopefully you can understand how strange it is.</p>
+
+<h2 id="making-the-rules">Making the rules</h2>
+<p>The idea of ‘contractions’ on the input space is a powerful one because it is not very prescriptive about the sorts of functions we have to use as transformation rules. It just enforces this intuitively reasonable notion that the repeated application of the rule has to result in a settling down not a blowing up. We will not work with this very general notion however, we are going to focus on one specific type of transformation which is particularly well suited to characterising fractal images as we are familiar with them: <strong>Affine</strong> transformations. Let’s define that term.</p>
+
+<p>A transformation is a rule that tells us how to move around different points based on their position. Once we know how to move individual points around we can then ask what happens to every point within a shape or region to see how it warps space at a more macro level.</p>
+
+<p>A rule that says ‘all points move to the position $(4,3)$’ is a perfectly good example of a transformation.</p>
+
+<p>A rule that says ‘multiply the $x$ coordinate by two’ is also a perfectly good transformation.</p>
+
+<p>They can be as simple or as complex as you like, so long as the definition is unambiguous for every input position.</p>
+
+<p>Transformation that completely mangles any input region into something unrecognisable will not be much use for describing fractal <em>self similarity</em>. We choose affine transformations to work with then because, like the name implies, while they may warp their input regions, the resulting outputs always share an <em>affinity</em> with the corresponding inputs.</p>
+
+<p>Each affine transformation can be uniquely specified by the way it morphs a rectangle in the input space to a parallelogram of some description in the output space, so you can think of affine transformations as encompassing all of: shifting, scaling (not necessarily by the same amount in each direction), and rotating. Mathematically speaking, they are given by the composition of a linear transformation and a translation:</p>
+
+<!-- TODO: it would be cool to add a little interactive thing that lets you select input region and output region and see how the resulting affine transformation maps points/regions/looks as represented with a matrix and translation vector -->
+
+<script type="math/tex; mode=display">% <![CDATA[
+f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatrix}}\begin{bmatrix}x\\y\end{bmatrix} + \color{orange}{\begin{bmatrix}e \\ f\end{bmatrix}} %]]></script>
+
+<p>Where the light green matrix is the linear part of the composition, and the orange vector is the translation vector.</p>
+
+<p>The translation does nothing more than move the region from one location to another, whereas the linear transformation captures all of the squishing and rotating.</p>
+
+<h2 id="using-the-rules">Using the Rules</h2>
+<p>That’s the bit which every conception of these IFS fractals agrees on. Affine transformations characterise the fractal. So you’ve settled on your copying rules, how do you draw a picture with them? The formal method outlined above says start with some other region then just keep morphing it with your rules over and over until it looks right. Pleasantly clean in its conception but somewhat of a pain computationally, to have to apply the function for <em>every single point</em> in some region. Here’s what’s actually done:</p>
+
+<h3 id="the-image-generation-process-presented-interactively-and-step-by-step">The Image generation process, presented interactively and step by step:</h3>
+
+<!-- 
+  TODO:
+  - add final slide with interactive options for controlling
+  all parameters
+  - add feature to reveal report on previously loaded system of
+  equations on hover
+  - reimplement radio buttons so clickable area is much greater
+-->
+<!-- contains the whole bit to be embedded in the page -->
+<div style="background-color: #f5f5f5; padding: 20px; border-radius: 2.1rem; ">
+  <!-- contains the visualisations -->
+  <div id="canvas-container" hidden="true">
+  <canvas id="frame-canvas" height="600" width="700" style="margin-right: auto; margin-left: auto; margin-bottom: 2rem; display: block;"></canvas>
+  </div>
+  <!-- contains report on last generation -->
+  <div></div>
+  <!-- contains the buttons -->
+  <div>
+    <input style="background-color: #ddd" type="button" name="preset" value="Barnsley Fern" alt="barnsleyFern" />
+    <input style="background-color: #ddd" type="button" name="preset" value="Maple Leaf" alt="mapleLeaf" />
+    <input style="background-color: #ddd" type="button" name="preset" value="Binary Tree" alt="binaryTree" />
+    <input style="background-color: #ddd" type="button" name="preset" value="Serpinski" alt="serpinski" />
+    <input style="background-color: #ddd" type="button" name="preset" value="Sand Dollar" alt="sandDollar" />
+    <input style="background-color: #ddd" type="button" name="preset" value="Random" alt="random" />
+  </div>
+  <!-- contains the textual desctiption -->
+  <h4 id="frame-title">↑ Select one of the above predefined rule sets to apply procedure to ↑</h4>
+  <div id="slide-controls" hidden="true">
+    <input style="background-color: #ddd" type="button" value="previous slide" id="previous-button" />
+    <input style="background-color: #ddd" type="button" value="next slide" id="next-button" />
+    <input style="background-color: #ddd; margin-left: 30px" type="button" value="refresh image" id="refresh-button" />
+  </div>
+  <div id="frame-description-container">
+  <p style="padding: 0.5rem 1rem; border-top: 1px solid #333333; font-size: 1.1em;" id="frame-description"></p>
+  </div>
+</div>
+
+<!-- all the logic/ content to include in that scaffold -->
+
+<!-- data to be interacted with -->
+<script>
+  let frames = [
+    { // 0
+      title:
+      "The final result of the image generation process.",
+      description:
+      'This is what we are going to build up to - the final result. The only information needed to generate this image is knowledge of the self-similar transformations that characterise it. How exactly is knowledge of these transformations applied to produce such an image though? That is what we are going to walk through step by step in this slideshow.',
+      imageData: () => IFS.get(eval(preset), 250000),
+    },
+    { // I
+      title:
+      "I. The initial starting point",
+      description:
+      "We start with just one point. For simplicity's sake, the coordinates of this point are chosen to be (0,0), but it actually doesn't matter where you choose to begin. In generating these images the point that you start with is moved around so many times that the importance of that first position is, in the end, thouroughly eroded. Like the classic street magic trick where you have to follow the ball underneath the three cups, after a while it seems impossible to determine where it all began anyway. NOTE: although the starting position may appear to be different for each choice of fractal, actually the red point is always (0,0). What's going on is that in each case we are looking at a different section of the cartesian plane.",
+      imageData: () => IFS.get(eval(preset), 0, {style: 'blobs', blobsSize: 3}),
+    },
+    { // II
+      title:
+      "II. The very first iteration",
+      description:
+      "<i>This</i> is the core process. We take the position of the last point we plotted (in this case the only point) and we use one of the rules to decide where to move it to. Here the last point (the starting point) has been marked in red, and the new point is marked in black. NOTE: you may have not noticed any change between this slide and the last slide. If that is the case it is because the transformation that was applied mapped the initial position right back onto itself. If you re-run the program you will see that the new position is not the same every time - a different one of the transformation rules is chosen at random each time.",
+      imageData: () => IFS.get(eval(preset), 1, {style: 'lines', blobsSize: 3}),
+    },
+    { // III
+      title:
+      "III. More iterations, colorised",
+      description:
+      "We make one small change to our method while things are still simple and uncluttered: we colour the lines and the points differently according to which transformation rule was responsible for each motion. The colours themselves are not significant, but lines with the same colour correspond to movements caused by the same transformation rule. This way it's a little easier to see what's happening under the hood.",
+      imageData: () => IFS.get(eval(preset), 5, {style: 'lines', color: 'last', blobsSize: 3}),
+      // function call:
+      // IFS.get(eval(preset), 5, {style: 'lines', color: 'last'});
+    },
+    { // IV
+      title:
+      "IV. 50 Steps in, some patterns emerge.",
+      description:
+      "Here we plot the path that our first point follows as we apply this process over and over again, more and more times. Slowly, what seems chaotic shows form. From erratic motions to repeated patterns. Though the path is far from perfectly tracing the pattern we are seeking, we start to see its characteristics in the regions that are visited and revisited.",
+      imageData: () => IFS.get(eval(preset), 50, {style: 'lines', color: 'last', blobsSize: 3}),
+      // function call:
+      // IFS.get(eval(preset), 10-1000, {style: 'lines', color: 'last'});
+    },
+    { // V
+      title:
+      "V. The output after 2000 of these random jumps",
+      description:
+      "This is perhaps my favourite step in the process. It is absolutely clear now that these rules when applied together produce something orderly, but the resulting form is still so messy and confusing. The step that nicely straddles the unpredictable beginnings and the completely predetermined end.",
+      imageData: () => IFS.get(eval(preset), 2000, {style: 'lines', color: 'last', blobsSize: 0}),
+      // function call:
+      // IFS.get(eval(preset), 10,0000, {style: 'lines', color: 'last'});
+    },
+    { // VI
+      title:
+      "VI. What you see when you remove all the connecting lines",
+      description:
+      "The path becomes so tangled and self-crossing that it is easier to appreciate what's going on by actually giving up on following the movements and instead just focusing the spots which were visited along the way. Less ball of thread, more breadcrumbs. As we dot around, following one transformation after another, we place a marker at each resting place, colored according to the transformation responsible for its last motion. The result is much more sparse but much more orderly. The only thing left to do now is repeat the process many more times to flesh out the picture.",
+      imageData: () => IFS.get(eval(preset), 2000, {color: 'last'}),
+    },
+    { // VII
+      title:
+      "VII. Cranking up the iterations from 2,000 to 100,000",
+      description:
+      "And suddenly the shape comes into focus, and refreshing the picture seems to have little effect other than to cause the dancing of points around their already well settled places. It turns out these positions were in some way inevitable.",
+      imageData: () => IFS.get(eval(preset), 100000, {color: 'last'}),
+    },
+    { // VIII
+      title:
+      "VIII. Superimposing the bounding boxes to indicate the different rules",
+      description:
+      "Here we make one last addition to our visual exposition; one box surrounding the entire input region, and then one coloured output box for each rule making up the fractal definition. In this way the impact of each transformation is made absolutely apparent.",
+      imageData: () => IFS.get(eval(preset), 100000, {color: 'last', bboxes: true}),
+    },
+    { // IX
+      title:
+      "IX. Ending where we started",
+      description:
+      "By removing the didactic coloring and inclusion of bounding boxes to indicate the transformations at work, we find ourselves back where we started - the process of generating the fractal from its transformation-specification is complete.",
+      imageData: () => IFS.get(eval(preset), 250000, {color: 'uniform'}),
+    },
+  ];
+</script>
+
+<!-- interaction handling -->
+<script>
+  // functions
+  // events / content
+  let currentFrame = 0;
+  let preset = 'binaryTree';
+  let presets = document.getElementsByName('preset');
+  for(var i = 0; i < presets.length; i++) {
+    presets[i].onclick = (e) => {
+      preset = e.originalTarget.alt;
+      for(var j = 0; j < presets.length; j++) {
+          presets[j].style = "background-color: #ddd; font-weight: lighter"
+      }
+      e.originalTarget.style = "background-color: #ddd; font-weight: normal;"
+      getFrame(frames[currentFrame]);
+    }
+  }
+  let frameDescriptionContainer = document.getElementsByName('frame-description-container');
+  let nextButton = document.getElementById('next-button');
+  let prevButton = document.getElementById('previous-button');
+  let frameDescription = document.getElementById('frame-description');
+  let frameTitle = document.getElementById('frame-title');
+  let frameCanvas = document.getElementById('frame-canvas');
+  let frameContext = frameCanvas.getContext('2d');
+  let refreshButton = document.getElementById('refresh-button');
+  let slideControls = document.getElementById('slide-controls');
+  let canvasContainer = document.getElementById('canvas-container');
+  nextButton.onclick = () => { 
+    currentFrame = (currentFrame + 1 + 10) % 10;
+    getFrame(frames[currentFrame]);
+  };
+  prevButton.onclick = () => { 
+    currentFrame = (currentFrame - 1 + 10) % 10;
+    getFrame(frames[currentFrame]);
+  };
+  refreshButton.onclick = () => paint(frameCanvas,frames[currentFrame].imageData());
+  const getFrame = (frame) => {
+    canvasContainer.hidden = false;
+    slideControls.hidden = false;
+    frameTitle.innerHTML = frame.title;
+    frameDescription.innerHTML = frame.description;
+    paint(frameCanvas, frame.imageData());
+  }
+</script>
+
+<p>So there you have it, for some reason if you just choose any random starting point then plot the result of (also randomly) applying each transformation rule to that point over and over again, the result is a shockingly accurate approximation of your image.</p>
+
+<h3 id="notes--clarifications">Notes / Clarifications:</h3>
+<ul>
+  <li>This process is often referred to as the ‘chaos game’ method.</li>
+  <li>When I say that the transformations are chosen at random, that is true, and the probability of any particular transformation being chosen at a given iteration is something you have to specify before beginning the process. (Tweaking these probabilities has the effect of making regions in the output associated with the corresponding transformation either more or less dense with points ending up there)</li>
+  <li>About <a href="https://github.com/joelstrouts/blog/blob/master/_includes/scripts/custom/IFS.js">my implementation</a>: It’s not very fast, at least at the time of writing. The methods I used to implement this IFS plotter gave no real consideration to computational efficiency. My priority was to model in the code my understanding of the problem as cleanly as possible in a familiar language. At some point in the future I may rewrite the performance critical parts, as it stands however, plotting &gt;500,000 points at a time is quite resource intensive.</li>
+</ul>
+
+<h3 id="why-does-it-work">Why does it work?</h3>
+<p>I think what this really instills in me is the sense that there is something very robust about this ‘attractor’ property of the set. You really don’t have to try too hard to find it. I think this method of imaging the set is like taking a crayon imprint of a leaf through paper or something. A scattering of points over the relevant region can hardly <em>not</em> find it because its ridges and valleys are just so prominent. The mathematics that grantees this sort of long term probabilistic certainty happens to belong to a branch called ‘ergodic theory’. That is the mathematics of long term behaviour of dynamical systems defined on probability measures.</p>
+
+<p>Probability measures? Yes one detail I did not mention above is that a more nuanced way of imaging the attractor, akin to the other formal definition given, comes from considering not input regions, but something more like input distributions. Probability measures, in fact. Then rather than just morphing one region into another, you flow one distribution into the next, where regions have a higher value according to the measure if you expect more points to map to that region after the transformations are applied. It allows you to go from a set with hard boundaries in black and white to a grey-scale reproduction with light and dark regions showing you where the transformations collect more or less of the points. It turns out that the picture you get with this dynamical approach is really a crayon imprint of the invariant probability measure, not the harsh black-and-white in-or-out set invariant.</p>
+
+<h2 id="what-now">What now?</h2>
+
+<p>None of this is anything close to cutting edge. I now understand a few different ways of looking at the same problem and have developed my own methods for implementing one such method. My next step is to try to reprodiuce part of the inverse procedure outlined in the 1994 paper “<em>Inverse and Approximation Problem for Two-Dimensional Fractal Sets</em>”. I hope to have implemented the very first part of their method (application of a wavelet transform to identify periodic oscillations around regression line corresponding to the scaling factor of transformation rules) by… Wednesday? Maybe by the end of summer I’ll be up to date with the 1995 discoveries too!</p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2019-07-30T00:00:00+01:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet --><div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">Subscribe</a></div></div><div class="article__license"><div class="license">
+    <p>This work is licensed under a <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> license.
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer><div class="article__section-navigator clearfix"><div class="previous"><span>PREVIOUS</span><a href="/2019/07/20/In-McDonalds-Again.html">In McDonalds Again</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script></div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet --></div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Joel Strouts"><meta itemprop="url" content="/"><meta itemprop="description" content="I'm working on it"><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Joel Strouts 2019,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+  
+<!-- start custom footer snippets -->
+
+  <script>console.log('no libraries included');</script>
+
+
+
+    <script>console.log('included scripts were: IFS');</script>
+    
+    
+    
+      <script async="true" defer>
+        // TODO: replace margin parameter with scale parameter as a means for
+// making the central image take up more or less of the overall
+// canvas.
+// TODO: add functionality to write a report on each last generation
+// TODO: add functionality to save last random system of equations
+// in placeholder IFS variable
+// Thought about inverse problem:
+// make training data for neural network by automatically generating
+// vast numbers of random images and associating with each output
+// image a battery of statistics about each combination of transforms.
+// perhaps train several models one for each different aspect of
+// the reverse engineering problem. Supply each with vector of values
+// you think most relevant.
+/**************************/
+/* HELPER FUNCTIONS START */
+/**************************/
+/* FUNCTIONAL ESSENTIALS
+ */
+const zip = (list1, list2) => list1.map((value, key) => [value, list2[key]]);
+const getComposition = (...functions) => (point) => {
+  return functions.reduce((value, func) => func(value), point);
+}
+const override = (defaults, reconsiderations) => {
+  let returnValues = {};
+  if (!reconsiderations) {
+    for (index in Object.keys(defaults)) {
+      let key = Object.keys(defaults)[index];
+      returnValues[key] = defaults[key];
+    }
+    return defaults;
+  } else {
+    for (index in Object.keys(defaults)) {
+      let key = Object.keys(defaults)[index];
+      returnValues[key] =  
+        (reconsiderations[key]) ? reconsiderations[key] : defaults[key];
+    }
+    return returnValues;
+  }
+}
+
+/* LINEAR ALGEBRA
+ * (VECTOR RELATED)
+ */
+const vScale = (a, v) => v.map((entry) => a * entry);
+const vAdd = (...vectors) => vectors.reduce((v,w) => [v[0] + w[0], v[1] + w[1]]);
+const vMinus = (v, w) => vAdd(v, vScale(-1, w));
+const vMod = v => Math.sqrt(v.reduce((e1, e2) => e1 * e1 + e2 * e2));
+const dot = (v, w) => zip(v,w).reduce((pair1, pair2) => pair1[0] * pair1[1] + pair2[0] * pair2[1]);
+const getTranslation = c => p => vAdd(p,c);
+/* (MATRIX RELATED)
+ */
+const det = ([[a,c],[b,d]]) => a*d - b*c;
+const mInverse = ([[a,c],[b,d]]) => mScale(1/(a*d - b*c), [[d,-c],[-b,a]]);
+const mScale = (a, M) => M.map(v => vScale(a, v));
+const mProduct = (...matricies) => matricies.reduce(
+  (A, B) => [getLinear(A)(B[0]), getLinear(A)(B[1])]
+);
+const getAffine = (M,c) => p => getComposition(getLinear(M), getTranslation(c))(p);
+const getLinear = M => p => {
+  return [
+    p[0] * M[0][0] + p[1] * M[1][0],
+    p[0] * M[0][1] + p[1] * M[1][1]
+  ];
+}
+const randomAffine = () => {
+  let r = [0,0,0,0,0,0].map(() => Math.random() * 2 - 1);
+  return getAffine([[r[0], r[1]], [r[2], r[3]]], [r[4], r[5]]);
+}
+const randomLinear = () => {
+  let r = [0,0,0,0].map(() => Math.random() * 2 - 1);
+  return getLinear([[r[0], r[1]], [r[2], r[3]]], [r[4], r[5]]);
+}
+/* DISCRETE MATHS
+ */
+const ipart = x => Math.floor(x);
+const round = x => ipart(x + 0.5);
+const fpart = x => x - Math.floor(x);
+const rfpart = x => 1 - fpart(x);
+const cummulative = list => {
+  let returnList = [list[0]];
+  let runningTotal = list[0];
+  for (var i = 1; i < list.length; i++) {
+    runningTotal += list[i];
+    returnList = returnList.concat(runningTotal);
+  }
+  return returnList;
+}
+const constrain = (x, bounds) => Math.max(Math.min(x,bounds[1],bounds[0]));
+
+/* PROJECTION / DRAWING
+ */
+const getCoordinateTransform = (from, to) => (point) => {
+  return getComposition(
+    getTranslation(vScale(-1, from.o)),
+    getLinear(mInverse([from.x, from.y])),
+    getLinear([to.x, to.y]),
+    getTranslation(to.o)
+  )(point);
+}
+const scaleTransform = (f, amount) => p => {
+  return getComposition(f, getLinear([[amount,0],[0,amount]]))(p)
+}
+const getOutputRegion = (referenceRegion, canvas, options) => {
+  let outputRegion = { o: [0,0], x: [1,0], y: [0,1] };
+  switch (options.position) {
+    case 'centre':
+      let inX = vMod(referenceRegion.x), inY = vMod(referenceRegion.y),
+          canvX = canvas.width,          canvY = canvas.height,
+          outX,                          outY;
+      if (inY / inX > canvY / canvX) { // slack width
+        outY = canvY;
+        outX = Math.floor((inX / inY) * canvY);
+        let slack = canvX - outX;
+        outputRegion = { 
+          o: [
+            Math.floor(slack / 2) + options.margin,
+            outY - options.margin
+          ],
+          x: [outX - 2 * options.margin, 0],
+          y: [0, - outY + 2 * options.margin],
+        }
+      } else { // slack height
+        outX = canvX;
+        outY = Math.abs(Math.floor((inY / inX) * canvX));
+        outputRegion = { 
+          o: [
+            options.margin, 
+            outY + Math.floor(canvY - outY) / 2 - options.margin
+          ],
+          x: [outX - 2 * options.margin, 0],
+          y: [0, 2 * options.margin - outY],
+        }
+      }
+      break;
+  }
+  return outputRegion;
+}
+const paintPixel = ([x,y], imgData, rgba) => {
+  if  (x > 0 
+    && x < imgData.width
+    && y > 0
+    && y < imgData.height) {
+    const index = 4 * (y * imgData.width + x);
+    imgData.data[index + 0] = rgba[0];
+    imgData.data[index + 1] = rgba[1];
+    imgData.data[index + 2] = rgba[2];
+    imgData.data[index + 3] = rgba[3];
+  }
+}
+const paintPixelBox = ([x,y], imgData, rgba, size) => {
+  for (var i = - size; i < size; i++) {
+    for (var j = - size; j < size; j++) {
+      paintPixel([x + i, y + j], imgData, rgba);
+    }
+  }
+}
+
+const drawLine = ([x1,y1], [x2,y2], imgData, rgb) => {
+  let steep = Math.abs(y2 - y1) > Math.abs(x1 - x2);
+  if (steep)   { [x1, y1] = [y1, x1]; [x2, y2] = [y2, x2]; }
+  if (x1 > x2) { [x1, x2] = [x2, x1]; [y1, y2] = [y2, y1]; }
+  let dx = x2 - x1;
+  let dy = y2 - y1;
+  let m = dy / dx;
+  if (dx === 0) { m = 1 }
+   
+  // first end point
+  let xend = round(x1);
+  let yend = y1 + m * (xend - x1);
+  let xgap = rfpart(x1 + 0.5)
+  let xpxl1 = xend;
+  let ypxl1 = ipart(yend);
+  if (steep) {
+    paintPixel([ypxl1, xpxl1],     imgData, rgb.concat(rfpart(yend) * xgap * 255));
+    paintPixel([ypxl1 + 1, xpxl1], imgData, rgb.concat( fpart(yend) * xgap * 255));
+  } else {
+    paintPixel([xpxl1, ypxl1],     imgData, rgb.concat(rfpart(yend) * xgap * 255));
+    paintPixel([xpxl1, ypxl1 + 1], imgData, rgb.concat( fpart(yend) * xgap * 255));
+  }
+  let intery = yend + m;
+
+  // second end point
+  xend = round(x2);
+  yend = y2 + m * (xend - x2);
+  xgap = fpart(x2 + 0.5)
+  let xpxl2 = xend;
+  let ypxl2 = ipart(yend);
+  if (steep) {
+    paintPixel([ypxl2, xpxl2],     imgData, rgb.concat(rfpart(yend) * xgap * 255));
+    paintPixel([ypxl2 + 1, xpxl2], imgData, rgb.concat(fpart(yend) * xgap * 255));
+  } else {
+    paintPixel([xpxl2, ypxl2],     imgData, rgb.concat(rfpart(yend) * xgap * 255));
+    paintPixel([xpxl2, ypxl2 + 1], imgData, rgb.concat( fpart(yend) * xgap * 255));
+  }
+
+  // line inbetween
+  if (steep) {
+    for (var x = xpxl1 + 1; x < xpxl2; x++) {
+      paintPixel([ipart(intery), x],     imgData, rgb.concat(rfpart(intery) * 255));
+      paintPixel([ipart(intery) + 1, x], imgData, rgb.concat( fpart(intery) * 255));
+      intery = intery + m;
+    }
+  } else {
+    for (var x = xpxl1 + 1; x < xpxl2; x++) {
+      paintPixel([x, ipart(intery)],     imgData, rgb.concat(rfpart(intery) * 255));
+      paintPixel([x, ipart(intery) + 1], imgData, rgb.concat( fpart(intery) * 255));
+      intery = intery + m;
+    }
+  }
+}
+const drawPolygon = (verts, imgData, rgba) => {
+  let rgb = rgba.slice(0,3);
+  verts = verts.concat([verts[0]]);
+  verts.reduce((a,b) => { drawLine(a,b,imgData,rgb); return b; });
+  verts.map(p => { paintPixelBox(p, imgData, rgba, 3); return p});
+}
+
+/************************/
+/* HELPER FUNCTIONS END */
+/************************/
+
+/************************/
+/*    PRESETS           */
+/************************/
+
+const paint = (canvas, fractalGetter) => {
+  IFS.canvas = canvas;
+  canvas.getContext('2d').putImageData(fractalGetter(), 0, 0);
+}
+const IFS = {
+  init: (def, options) => {
+    if (def.init) { def.init(); }
+    def.ctf = getCoordinateTransform(
+      def.referenceRegion, 
+      getOutputRegion(def.referenceRegion, IFS.canvas, options)
+    );
+    if (def.probabilities === 'equal') {
+      def.probabilities = Array(def.transforms.length).fill(1/def.transforms.length);
+    }
+    def.getPixel = p => def.ctf(p).map(e => Math.floor(e));
+    def.probBins = cummulative(def.probabilities);
+  },
+  get: (def, n, options) => () => {
+    options = override(IFS.defaultOptions, options);
+    IFS.init(def, options);
+    return getIFS(def, n, options);
+  },
+  applyTransform: def => p => {
+    let rand = Math.random();
+    let choice = 0;
+    while (rand > def.probBins[choice]) { choice += 1; }
+    IFS.lastTransform = choice;
+    return def.transforms[choice](p);
+  },
+  defaultOptions: {
+    runnable: false,
+    style: 'dots',
+    color: 'uniform',
+    colors: [
+      [0, 0, 0],
+      [0, 200, 0],
+      [190, 0, 150],
+      [200, 110, 0],
+      [210, 0, 0],
+      [0, 0, 200],
+      [0, 110, 200],
+      [40, 40, 40],
+    ],
+    bboxes: false,
+    blobsSize: 1,
+    initialPoint: [0,0],
+    position: 'centre',
+    margin: 40,
+  },
+}
+const getIFS = (def, N, options) => {
+  const imageData = new ImageData(IFS.canvas.width, IFS.canvas.height);
+  let thisColor; if (options.color == 'last') {
+    IFS.lastTransform = 0;
+    thisColor = () => options.colors[IFS.lastTransform + 1];
+  } else {
+    thisColor = () => options.colors[0];
+  }
+  let p = options.initialPoint;
+  if (options.bboxes) {
+    let [a,b,c,d] = [
+      def.referenceRegion.o,
+      vAdd(def.referenceRegion.o, def.referenceRegion.x),
+      vAdd(def.referenceRegion.o, def.referenceRegion.x, def.referenceRegion.y),
+      vAdd(def.referenceRegion.o, def.referenceRegion.y)
+    ];
+    let [p,q,r,s] = [a,b,c,d].map(p => def.getPixel(p));
+    drawPolygon([p,q,r,s], imageData, [0,0,0,255]);
+    IFS.lastTransform = 0;
+    def.transforms.map(f => {
+      [p,q,r,s] = [a,b,c,d].map(p => def.getPixel(f(p)));
+      drawPolygon([p,q,r,s], imageData, thisColor().concat(255));
+      IFS.lastTransform += 1;  
+    })
+  }
+  // MAIN LOOP
+  if(options.style == 'lines') {
+    // draw initial point before the main loop begins
+    let pixelOrigin = def.ctf(p).map(e => Math.floor(e));
+    paintPixelBox(pixelOrigin, imageData, thisColor().concat(255), options.blobsSize);
+  }
+  for (var i = 0; i < N; i++) {
+    let q = IFS.applyTransform(def)(p);
+    let [a, b] = [p,q].map(v => def.ctf(v).map(e => Math.floor(e)));
+    if (options.style == 'dots') {
+      paintPixel(b, imageData, thisColor().concat(255));
+    } else if (options.style == 'blobs') {
+      paintPixelBox(b, imageData, thisColor().concat(255), options.blobsSize);
+    } else if (options.style == 'lines') {
+      drawLine(a, b, imageData, thisColor());
+      paintPixelBox(b, imageData, thisColor().concat(255), options.blobsSize);
+    }
+    p = q;
+  }
+  let a = def.ctf(options.initialPoint).map(e => Math.floor(e));
+  if (options.style == 'dots') {
+    paintPixel(a, imageData, [255,0,0,255]);
+  } else if (options.style == 'blobs' || options.style == 'lines') {
+    paintPixelBox(a, imageData, [255,0,0,255], options.blobsSize);
+  }
+  return imageData;
+}
+
+const barnsleyFern = {
+  referenceRegion: {
+    o: [-2.4,-0.5],
+    x: [5.5 ,0 ] ,
+    y: [0   ,11],
+  },
+  transforms: [
+    getLinear([[ 0.00, 0.00],[ 0.00, 0.16]]),
+    getAffine([[ 0.85,-0.04],[ 0.04, 0.85]], [0.00,1.60]),
+    getAffine([[ 0.20, 0.23],[-0.26, 0.22]], [0.00,1.60]),
+    getAffine([[-0.15, 0.26],[ 0.28, 0.24]], [0.00,0.44]),
+  ],
+  probabilities: [
+    0.01,
+    0.85,
+    0.07,
+    0.07,
+  ],
+};
+const binaryTree = {
+  referenceRegion: {
+    o: [-0.5,0  ],
+    x: [1   ,0  ] ,
+    y: [0   ,0.9],
+  },
+  transforms: [
+    getLinear([[ 0, 0.00],[ 0.00, 0.45]]),
+    getAffine([[ 0.42, 0.42],[-0.42, 0.42]], [0.00, 0.40]),
+    getAffine([[ 0.42,-0.42],[ 0.42, 0.42]], [0.00, 0.40]),
+  ],
+  probabilities: Array(3).fill(1/3),
+};
+const mapleLeaf = {
+  referenceRegion: {
+    o: [-3.5,-3.6],
+    x: [7,0] ,
+    y: [0,7.1],
+  },
+  transforms: [
+    getComposition(getLinear([[0.5,0],[0,0.65]]), getTranslation([0,1.2])),
+    getAffine([[ 0.45,-0.45],[ 0.45, 0.45]], [ 1.62,-0.65]),
+    getAffine([[ 0.45, 0.45],[-0.45, 0.45]], [-1.62,-0.65]),
+    getComposition(getLinear([[0,0],[0,-0.4]]), getTranslation([0,-2.3])),
+  ],
+  probabilities: [0.31,0.31,0.31,0.07]
+};
+const sandDollar = {
+  referenceRegion: {
+    o: [0,0],
+    x: [1,0] ,
+    y: [0,1],
+  },
+  transforms: [
+    getAffine([[ 0.382, 0.0000],[ 0.0000, 0.382]], [0.3090, 0.5710]),
+    getAffine([[ 0.118, 0.3630],[-0.3630, 0.118]], [0.3633, 0.3306]),
+    getAffine([[ 0.118,-0.3630],[ 0.3630, 0.118]], [0.5187, 0.6940]),
+    getAffine([[-0.309, 0.2245],[-0.2245,-0.309]], [0.6070, 0.3090]),
+    getAffine([[-0.309,-0.2245],[ 0.2245,-0.309]], [0.7016, 0.5335]),
+    getAffine([[ 0.382, 0.0000],[ 0.0000,-0.382]], [0.3090, 0.6770]),
+  ],
+  probabilities: 'equal',
+};
+const serpinski = {
+  referenceRegion: {
+    o: [0,0],
+    x: [2,0],
+    y: [0,2],
+  },
+  transforms: [
+    getLinear([[1/2, 0],[0,1/2]]),
+    getAffine([[1/2, 0],[0,1/2]], [1, 0]),
+    getAffine([[1/2, 0],[0,1/2]], [0, 1]),
+  ],
+  probabilities: Array(3).fill(1/3),
+};
+const random = {
+  scale: 0.7,
+  order: 4,
+  referenceRegion: {
+    o: [-0.5,-0.5],
+    x: [1   ,0] ,
+    y: [0   ,1],
+  },
+  transforms: [], // defined on object initialization
+  probabilities: [], 
+  init: () => {
+    random.transforms = [];
+    for (var i = 0; i < random.order; i++) {
+      random.transforms = random.transforms.concat(scaleTransform(randomAffine(), random.scale))
+    }
+    random.probabilities = Array(random.order).fill(1/random.order);
+  },
+};
+
+      </script>
+    
+
+<script>console.log('custom footer processed');</script>
+<!-- end custom footer snippets -->
+
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">Search</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        Cancel</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script></div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script><script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script><script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
