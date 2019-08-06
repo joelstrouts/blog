@@ -287,19 +287,19 @@
             <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="Iterated Function Systems / Crayon Impressions of Leaves"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>Jul 30, 2019</span>
             </li></ul></div><meta itemprop="author" content="Joel Strouts"/><meta itemprop="datePublished" content="2019-07-30T00:00:00+01:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
-<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><p>I am about half way through my time working here and I have reached a crucial turning point in my research. All this time the goal has been to make progress on the reverse engineering problem, but it was first necessary to familiarise myself with the forward-engineering. I am <em>now</em> familiar with that forward-engineering. In this post I sum up what I’ve learned and embelish the descriptions with pretty outputs from the program I wrote.</p>
+<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><p>I am about half way through my time working here and I have reached a crucial turning point in my research. All this time the goal has been to make progress on the reverse engineering problem, but it was first necessary to familiarise myself with the forward-engineering. I am <em>now</em> familiar with that forward-engineering. In this post I sum up what I’ve learned and embellish the descriptions with pretty outputs from the program I wrote.</p>
 
 <!-- more -->
 <blockquote>
   <p>Note: if you’re not drawn in by technical details, don’t go! Skip to <a href="#the-image-generation-process-presented-interactively-and-step-by-step">the interactive demonstration</a> I’m very proud of it! Maybe the details will be more interesting after some intriguing pictures.</p>
 </blockquote>
 
-<p>There’s this one detail about the creation of these fractal images that really confused me to begin with (and stil to an extent now, although familiarity softens much frustration), and that’s what I’d like to talk about here. It’s this mismatch between the theory as I understood it, and the actual methods used in practice which didn’t seem at all related to that theory.</p>
+<p>There’s this one detail about the creation of these fractal images that really confused me to begin with (and still to an extent now, although familiarity softens much frustration), and that’s what I’d like to talk about here. It’s this mismatch between the theory as I understood it, and the actual methods used in practice which didn’t seem at all related to that theory.</p>
 
 <p>Here’s how I originally understood the process used to generate reproductions of fractal images:</p>
 <ul>
   <li>these fractals have smaller copies of themselves embedded within themselves</li>
-  <li>if you specifed the exact way that the copies were embedded, then you could reproduce the image by repeatedly making copies according to that rule</li>
+  <li>if you specified the exact way that the copies were embedded, then you could reproduce the image by repeatedly making copies according to that rule</li>
   <li>For example: if you started with the stem of the fern, then copying it around over and over again, making smaller and smaller copies of that one stem, you would end up with a skeletal model of the same fern that - after enough iterations - would look just like the original.</li>
 </ul>
 
@@ -545,7 +545,7 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
 
 <h2 id="what-now">What now?</h2>
 
-<p>None of this is anything close to cutting edge. I now understand a few different ways of looking at the same problem and have developed my own methods for implementing one such method. My next step is to try to reprodiuce part of the inverse procedure outlined in the 1994 paper “<em>Inverse and Approximation Problem for Two-Dimensional Fractal Sets</em>”. I hope to have implemented the very first part of their method (application of a wavelet transform to identify periodic oscillations around regression line corresponding to the scaling factor of transformation rules) by… Wednesday? Maybe by the end of summer I’ll be up to date with the 1995 discoveries too!</p>
+<p>Writing this program was frustrating at first but then I got quite into it! So it is very tempting to just keep improving on it, and I have a list of changes I’d like to make to it that could certainly keep me busy for the rest of my time here. I can’t do that though. This part is done. I haven’t reverse engineered anything! So now I’m dragging myself away from this part of the project. My next step is to try to reproduce part of the inverse procedure outlined in the 1994 paper “<em>Inverse and Approximation Problem for Two-Dimensional Fractal Sets</em>”. I hope to have implemented the very first part of their method (application of a wavelet transform to identify periodic oscillations around regression line corresponding to the scaling factor of transformation rules) by… Wednesday? I think that’s optimistic. It’s kind of damning that all this work likely won’t even get me up to date with the 2000’s progress on the problem but that’s how it goes, I know. I’m learning lots.</p>
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2019-07-30T00:00:00+01:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet --><div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">Subscribe</a></div></div><div class="article__license"><div class="license">
