@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.6">Jekyll</generator><link href="https://joelstrouts.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://joelstrouts.com/" rel="alternate" type="text/html" /><updated>2019-08-04T23:01:39+01:00</updated><id>https://joelstrouts.com/</id><title type="html">Joel Strouts</title><subtitle>My personal website.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.6">Jekyll</generator><link href="https://joelstrouts.com/feed.xml" rel="self" type="application/atom+xml" /><link href="https://joelstrouts.com/" rel="alternate" type="text/html" /><updated>2019-08-06T03:57:10+01:00</updated><id>https://joelstrouts.com/</id><title type="html">Joel Strouts</title><subtitle>My personal website.
 </subtitle><author><name>Joel Strouts</name></author><entry><title type="html">Iterated Function Systems / Crayon Impressions of Leaves</title><link href="https://joelstrouts.com/2019/07/30/IFS.html" rel="alternate" type="text/html" title="Iterated Function Systems / Crayon Impressions of Leaves" /><published>2019-07-30T00:00:00+01:00</published><updated>2019-07-30T00:00:00+01:00</updated><id>https://joelstrouts.com/2019/07/30/IFS</id><content type="html" xml:base="https://joelstrouts.com/2019/07/30/IFS.html">&lt;p&gt;I am about half way through my time working here and I have reached a crucial turning point in my research. All this time the goal has been to make progress on the reverse engineering problem, but it was first necessary to familiarise myself with the forward-engineering. I am &lt;em&gt;now&lt;/em&gt; familiar with that forward-engineering. In this post I sum up what I’ve learned and embelish the descriptions with pretty outputs from the program I wrote.&lt;/p&gt;
 
 &lt;!-- more --&gt;
@@ -65,7 +65,7 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a &amp; b \\ c &amp; d\en
   - make resolution not depend on computed width, more pixels can suuurely fit on the screen damnit!
 --&gt;
 &lt;!-- contains the whole bit to be embedded in the page --&gt;
-&lt;div style=&quot;background-color: #f5f5f5; padding: 20px; border-radius: 2.1rem; &quot;&gt;
+&lt;div style=&quot;background-color: #f5f5f5; padding: 20px; border-radius: 2.1rem; border: 1px solid #4141ff&quot;&gt;
   &lt;!-- contains the visualisations --&gt;
   &lt;div id=&quot;canvas-container&quot; hidden=&quot;true&quot; style=&quot;margin-bottom: 0.5rem&quot;&gt;
   &lt;/div&gt;
