@@ -232,14 +232,29 @@ const IFS = {
     );
     if (def.probabilities === 'equal') {
       def.probabilities = Array(def.transforms.length).fill(1/def.transforms.length);
+      def.probBins = cummulative(def.probabilities);
+      def.probabilities = 'equal';
+    } else if (def.probabilities === 'area-weighted') {
+      let scales = def.transforms.map(f => {
+        let e1 = vMinus(f([1,0]), f([0,0]));
+        let e2 = vMinus(f([0,1]), f([0,0]));
+        return e1[0] * e2[1] - e2[0] * e1[1];
+      }).map(x => Math.abs(x) + 0.25 / def.transforms.length);
+      let M = scales.reduce((a,b) => a + b);
+      def.probabilities = scales.map(factor => factor / M);
+      console.log(def.probabilities);
+      def.probBins = cummulative(def.probabilities);
+      def.probabilities = 'area-weighted';
+    } else {
+      def.probBins = cummulative(def.probabilities);
     }
     def.getPixel = p => def.ctf(p).map(e => Math.floor(e));
-    def.probBins = cummulative(def.probabilities);
   },
   get: (def, n, options) => () => {
     options = override(IFS.defaultOptions, options);
     IFS.init(def, options);
-    return getIFS(def, n, options);
+    IFS.lastOutput.push(getIFS(def, n, options));
+    return IFS.lastOutput.slice(-1)[0];
   },
   applyTransform: def => p => {
     let rand = Math.random();
@@ -248,6 +263,7 @@ const IFS = {
     IFS.lastTransform = choice;
     return def.transforms[choice](p);
   },
+  lastOutput: [],
   defaultOptions: {
     runnable: false,
     style: 'dots',
@@ -406,12 +422,11 @@ const random = {
     y: [0   ,1],
   },
   transforms: [], // defined on object initialization
-  probabilities: [], 
+  probabilities: 'area-weighted', 
   init: () => {
     random.transforms = [];
     for (var i = 0; i < random.order; i++) {
       random.transforms = random.transforms.concat(scaleTransform(randomAffine(), random.scale))
     }
-    random.probabilities = Array(random.order).fill(1/random.order);
   },
 };
