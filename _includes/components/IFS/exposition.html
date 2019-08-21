@@ -12,7 +12,7 @@
   <div id="canvas-container" hidden="true" style="margin-bottom: 0.5rem">
   </div>
   <!-- contains report on last generation -->
-  <div></div>
+  <div id="report"></div>
   <!-- contains the buttons -->
   <div id="presets">
     <input style="background-color: #ddd" type="button" value="Barnsley Fern" alt="barnsleyFern">
@@ -166,18 +166,22 @@
       frameCanvas.style = "margin-right:auto; margin-left:auto; display:block;"
       frameCanvas.width = containerWidth;
       frameCanvas.height = containerWidth;
+      frameCanvas.id = "frame-canvas"
       frameCanvas.onclick = () => paint(frameCanvas, frames[slideNum].imageData());
     }
     slideControls.hidden = false;
     frameTitle.innerHTML = frame.title;
     frameDescription.innerHTML = frame.description;
-    if (preset == 'random' || preset == 'mapleLeaf') {
+    if (preset == "random" || preset == "mapleLeaf") {
       IFS.defaultOptions.scale = 0.7;
-    } else if (preset == 'binaryTree') {
+    } else if (preset == "binaryTree") {
       IFS.defaultOptions.scale = 0.8;
     } else {
       IFS.defaultOptions.scale = 0.9;
     }
     paint(frameCanvas, frame.imageData());
+  }
+  const download = () => {
+    
   }
 </script>

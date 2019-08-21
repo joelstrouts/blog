@@ -59,13 +59,36 @@ const getLinear = M => p => {
     p[0] * M[0][1] + p[1] * M[1][1]
   ];
 }
-const randomAffine = () => {
+const randomAffine = (rotation, uniform) => {
   let r = [0,0,0,0,0,0].map(() => Math.random() * 2 - 1);
+  if (!rotation) { [r[1],r[2]] = [0,0]; }
+  if (uniform) { r[3] = r[0]; }
   return getAffine([[r[0], r[1]], [r[2], r[3]]], [r[4], r[5]]);
 }
 const randomLinear = () => {
   let r = [0,0,0,0].map(() => Math.random() * 2 - 1);
   return getLinear([[r[0], r[1]], [r[2], r[3]]], [r[4], r[5]]);
+}
+const inferTranslation = affine => {
+  return affine([0,0]);
+}
+const inferLinear = affine => {
+  let v = inferTranslation(affine);
+  return [vMinus(affine([1,0]), v), vMinus(affine([0,1]), v)]
+}
+const inferInverse = affine => {
+  return getComposition(
+    getTranslation(vScale(-1, inferTranslation(affine))),
+    getLinear(mInverse(inferLinear(affine))),
+  )
+}
+const getFixedPoint = affine => {
+  let v = inferTranslation(affine);
+  console.log('translation is '.concat(v));
+  let phi = inferLinear(affine);
+  console.log('linear part is '.concat(phi));
+  let coefficients = mInverse([vMinus(phi[0], [1,0]), vMinus(phi[1], [0,1])]);
+  return getLinear(coefficients)(vScale(-1, v))
 }
 /* DISCRETE MATHS
  */
@@ -151,6 +174,16 @@ const paintPixelBox = ([x,y], imgData, rgba, size) => {
   }
 }
 
+const drawPoint = (point, imageData, style, rgba, options) => {
+  switch (style) {
+    case 'dots':
+      paintPixel(point, imageData, rgba);
+      break;
+    case 'blobs':
+      paintPixelBox(point, imageData, rgba, options);
+      break;
+  }
+}
 const drawLine = ([x1,y1], [x2,y2], imgData, rgb) => {
   let steep = Math.abs(y2 - y1) > Math.abs(x1 - x2);
   if (steep)   { [x1, y1] = [y1, x1]; [x2, y2] = [y2, x2]; }
@@ -248,7 +281,13 @@ const IFS = {
     } else {
       def.probBins = cummulative(def.probabilities);
     }
-    def.getPixel = p => def.ctf(p).map(e => Math.floor(e));
+    def.asPixel = p => def.ctf(p).map(e => Math.floor(e));
+    IFS.report = {};
+    IFS.report.transforms = def.transforms.map(affine => {
+      return [inferLinear(affine), inferTranslation(affine)];
+    })
+    IFS.report.fixedPoints = def.transforms.map(affine => { return getFixedPoint(affine);
+    });
   },
   get: (def, n, options) => () => {
     options = override(IFS.defaultOptions, options);
@@ -301,21 +340,16 @@ const getIFS = (def, N, options) => {
       vAdd(def.referenceRegion.o, def.referenceRegion.x, def.referenceRegion.y),
       vAdd(def.referenceRegion.o, def.referenceRegion.y)
     ];
-    let [p,q,r,s] = [a,b,c,d].map(p => def.getPixel(p));
+    let [p,q,r,s] = [a,b,c,d].map(p => def.asPixel(p));
     drawPolygon([p,q,r,s], imageData, [0,0,0,255]);
     IFS.lastTransform = 0;
     def.transforms.map(f => {
-      [p,q,r,s] = [a,b,c,d].map(p => def.getPixel(f(p)));
+      [p,q,r,s] = [a,b,c,d].map(p => def.asPixel(f(p)));
       drawPolygon([p,q,r,s], imageData, thisColor().concat(255));
       IFS.lastTransform += 1;  
     })
   }
   // MAIN LOOP
-  if(options.style == 'lines') {
-    // draw initial point before the main loop begins
-    let pixelOrigin = def.ctf(p).map(e => Math.floor(e));
-    paintPixelBox(pixelOrigin, imageData, thisColor().concat(255), options.blobsSize);
-  }
   for (var i = 0; i < N; i++) {
     let q = IFS.applyTransform(def)(p);
     let [a, b] = [p,q].map(v => def.ctf(v).map(e => Math.floor(e)));
@@ -329,12 +363,24 @@ const getIFS = (def, N, options) => {
     }
     p = q;
   }
-  let a = def.ctf(options.initialPoint).map(e => Math.floor(e));
-  if (options.style == 'dots') {
-    paintPixel(a, imageData, [255,0,0,255]);
-  } else if (options.style == 'blobs' || options.style == 'lines') {
-    paintPixelBox(a, imageData, [255,0,0,255], options.blobsSize);
+  drawPoint(
+    def.ctf(options.initialPoint).map(e => Math.floor(e)),
+    imageData,
+    options.style,
+    [255,0,0,255],
+    options.blobsSize
+  );
+  if (options.fixedPoints) {
+    IFS.lastTransform = 0;
+    def.transforms.map(affine => {
+      let fixedP = getFixedPoint(affine);
+      console.log('fixed point is: '.concat(fixedP));
+      paintPixelBox(def.asPixel(fixedP, imageData), imageData, thisColor().concat(255), 4);
+      paintPixelBox(def.asPixel(fixedP, imageData), imageData, [255,0,0,255], 2);
+      IFS.lastTransform += 1;  
+    })
   }
+  // IFS.report = getReport(def);
   return imageData;
 }
 
@@ -416,6 +462,8 @@ const serpinski = {
 const random = {
   scale: 0.7,
   order: 4,
+  rotation: true,
+  uniform: false,
   referenceRegion: {
     o: [-0.5,-0.5],
     x: [1   ,0] ,
@@ -426,7 +474,7 @@ const random = {
   init: () => {
     random.transforms = [];
     for (var i = 0; i < random.order; i++) {
-      random.transforms = random.transforms.concat(scaleTransform(randomAffine(), random.scale))
+      random.transforms = random.transforms.concat(scaleTransform(randomAffine(random.rotation, random.uniform), random.scale))
     }
   },
 };

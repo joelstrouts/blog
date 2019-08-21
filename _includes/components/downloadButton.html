@@ -1,0 +1,16 @@
+<input type="button" id="download-prep-button" value="prepare download">
+<br>
+<a id="download-link" download="IFS-output-image." hidden="true">
+  Download
+</a>
+
+<script>
+  // I don't know why this doesn't work
+  let downloadPrepButton = document.getElementById('download-prep-button');
+  let downloadLink = document.getElementById('download-link');
+  downloadPrepButton.onclick = () => {
+    let imageHREF = document.getElementById('frame-canvas').getContext('2d').getImageData();
+    downloadLink.href = imageHREF;
+    downloadLink.hidden = false;
+  }
+</script>
