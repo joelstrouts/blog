@@ -3,7 +3,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Scratch - Joel Strouts</title>
 
-<meta name="description" content="">
+<meta name="description" content="↑ Select one of the above predefined rule sets to apply procedure to ↑                    Download">
 <link rel="canonical" href="https://joelstrouts.com/2000/01/01/Scratch.html"><link rel="alternate" type="application/rss+xml" title="Joel Strouts" href="/feed.xml"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v1.1=LbyJdBL709">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png?v1.1=LbyJdBL709">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png?v1.1=LbyJdBL709">
@@ -285,12 +285,215 @@
             title="Edit on Github"
             href="https://github.com/joelstrouts/joelstrouts.github.io/tree/master/_posts/2000-01-01-Scratch.md">
             <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="Scratch"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>Jan 01, 2000</span>
-            </li></ul></div><meta itemprop="author" content="Joel Strouts"/><meta itemprop="datePublished" content="2000-01-01T00:00:00+00:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+            </li></ul></div><meta itemprop="author" content="Joel Strouts"/><meta itemprop="datePublished" content="2000-01-01T00:00:00+08:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
-<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><canvas id="myCanvas" width="650" height="600" style="background-color:#fff; border: 1px solid black;">
-</canvas>
+<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><!-- 
+  TODO:
+  - add final slide with interactive options for controlling
+  all parameters
+  - add feature to reveal report on previously loaded system of
+  equations on hover
+  - make resolution not depend on computed width, more pixels can suuurely fit on the screen damnit!
+-->
+<!-- contains the whole bit to be embedded in the page -->
+<div style="background-color: #f5f5f5; padding: 20px; border-radius: 2.1rem; border: 1px solid #4141ff">
+  <!-- contains the visualisations -->
+  <div id="canvas-container" hidden="true" style="margin-bottom: 0.5rem">
+  </div>
+  <!-- contains report on last generation -->
+  <div id="report"></div>
+  <!-- contains the buttons -->
+  <div id="presets">
+    <input style="background-color: #ddd" type="button" value="Barnsley Fern" alt="barnsleyFern" />
+    <input style="background-color: #ddd" type="button" value="Maple Leaf" alt="mapleLeaf" />
+    <input style="background-color: #ddd" type="button" value="Binary Tree" alt="binaryTree" />
+    <input style="background-color: #ddd" type="button" value="Serpinski" alt="serpinski" />
+    <input style="background-color: #ddd" type="button" value="Sand Dollar" alt="sandDollar" />
+    <input style="background-color: #ddd" type="button" value="Random" alt="random" />
+  </div>
+  <!-- contains the textual desctiption -->
+  <h4 id="frame-title">↑ Select one of the above predefined rule sets to apply procedure to ↑</h4>
+  <div id="slide-controls" hidden="true">
+    <input style="background-color: #ddd" type="button" value="previous slide" id="previous-button" />
+    <input style="background-color: #ddd" type="button" value="next slide" id="next-button" />
+  </div>
+  <div id="frame-description-container">
+  <p style="padding: 0.5rem 1rem; border-top: 1px solid #333333; font-size: 1.1em;" id="frame-description"></p>
+  </div>
+</div>
 
-</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2000-01-01T00:00:00+00:00"><!-- start custom article footer snippet -->
+<!-- all the logic/ content to include in that scaffold -->
+
+<!-- data to be interacted with -->
+<script>
+  let frames = [
+    { // 0
+      title:
+      "The final result of the image generation process.",
+      description:
+      'This is what we are going to build up to - the final result. The only information needed to generate this image is knowledge of the self-similar transformations that characterise it. How exactly is knowledge of these transformations applied to produce such an image though? That is what we are going to walk through step by step in this slideshow.',
+      imageData: () => IFS.get(eval(preset), 250000),
+    },
+    { // I
+      title:
+      "I. The initial starting point",
+      description:
+      "We start with just one point. For simplicity's sake, the coordinates of this point are chosen to be (0,0), but it actually doesn't matter where you choose to begin. In generating these images the point that you start with is moved around so many times that the importance of that first position is, in the end, thouroughly eroded. Like the classic street magic trick where you have to follow the ball underneath the three cups, after a while it seems impossible to determine where it all began anyway. NOTE: although the starting position may appear to be different for each choice of fractal, actually the red point is always (0,0). What's going on is that in each case we are looking at a different section of the cartesian plane.",
+      imageData: () => IFS.get(eval(preset), 0, {style: 'blobs', blobsSize: 3}),
+    },
+    { // II
+      title:
+      "II. The very first iteration",
+      description:
+      "<i>This</i> is the core process. We take the position of the last point we plotted (in this case the only point) and we use one of the rules to decide where to move it to. Here the last point (the starting point) has been marked in red, and the new point is marked in black. NOTE: you may have not noticed any change between this slide and the last slide. If that is the case it is because the transformation that was applied mapped the initial position right back onto itself. <b>If you re-run the process</b> (you can do this by clicking again on the preset you wish to load, or clicking on the canvas itself) you will see that the new position is not the same every time - a different one of the transformation rules is chosen at random each time.",
+      imageData: () => IFS.get(eval(preset), 1, {style: 'lines', blobsSize: 3}),
+    },
+    { // III
+      title:
+      "III. More iterations, colorised",
+      description:
+      "We make one small change to our method while things are still simple and uncluttered: we colour the lines and the points differently according to which transformation rule was responsible for each motion. The colours themselves are not significant, but lines with the same colour correspond to movements caused by the same transformation rule. This way it's a little easier to see what's happening under the hood.",
+      imageData: () => IFS.get(eval(preset), 5, {style: 'lines', color: 'last', blobsSize: 3}),
+      // function call:
+      // IFS.get(eval(preset), 5, {style: 'lines', color: 'last'});
+    },
+    { // IV
+      title:
+      "IV. 50 Steps in, some patterns emerge.",
+      description:
+      "Here we plot the path that our first point follows as we apply this process over and over again, more and more times. Slowly, what seems chaotic shows form. From erratic motions to repeated patterns. Though the path is far from perfectly tracing the pattern we are seeking, we start to see its characteristics in the regions that are visited and revisited.",
+      imageData: () => IFS.get(eval(preset), 50, {style: 'lines', color: 'last', blobsSize: 3}),
+      // function call:
+      // IFS.get(eval(preset), 10-1000, {style: 'lines', color: 'last'});
+    },
+    { // V
+      title:
+      "V. The output after 2000 of these random jumps",
+      description:
+      "This is perhaps my favourite step in the process. It is absolutely clear now that these rules when applied together produce something orderly, but the resulting form is still so messy and confusing. The step that nicely straddles the unpredictable beginnings and the completely predetermined end.",
+      imageData: () => IFS.get(eval(preset), 2000, {style: 'lines', color: 'last', blobsSize: 0}),
+      // function call:
+      // IFS.get(eval(preset), 10,0000, {style: 'lines', color: 'last'});
+    },
+    { // VI
+      title:
+      "VI. What you see when you remove all the connecting lines",
+      description:
+      "The path becomes so tangled and self-crossing that it is easier to appreciate what's going on by actually giving up on following the movements and instead just focusing the spots which were visited along the way. Less ball of thread, more breadcrumbs. As we dot around, following one transformation after another, we place a marker at each resting place, colored according to the transformation responsible for its last motion. The result is much more sparse but much more orderly. The only thing left to do now is repeat the process many more times to flesh out the picture.",
+      imageData: () => IFS.get(eval(preset), 2000, {color: 'last'}),
+    },
+    { // VII
+      title:
+      "VII. Cranking up the iterations from 2,000 to 100,000",
+      description:
+      "And suddenly the shape comes into focus, and refreshing the picture seems to have little effect other than to cause the dancing of points around their already well settled places. It turns out these positions were in some way inevitable.",
+      imageData: () => IFS.get(eval(preset), 100000, {color: 'last'}),
+    },
+    { // VIII
+      title:
+      "VIII. Superimposing the bounding boxes to indicate the different rules",
+      description:
+      "Here we make one last addition to our visual exposition; one box surrounding the entire input region, and then one coloured output box for each rule making up the fractal definition. In this way the impact of each transformation is made absolutely apparent.",
+      imageData: () => IFS.get(eval(preset), 100000, {color: 'last', bboxes: true}),
+    },
+    { // IX
+      title:
+      "IX. Ending where we started",
+      description:
+      "By removing the didactic coloring and inclusion of bounding boxes to indicate the transformations at work, we find ourselves back where we started - the process of generating the fractal from its transformation-specification is complete.",
+      imageData: () => IFS.get(eval(preset), 250000, {color: 'uniform'}),
+    },
+  ];
+</script>
+
+<!-- interaction handling -->
+<script>
+  // functions
+  // events / content
+  let slideNum = 0;
+  let preset = 'binaryTree';
+  let presets = [...document.getElementById('presets').childNodes];
+  let loadPreset = (e) => {
+    preset = e.target.alt;
+    getFrame(frames[slideNum]);
+  }
+  for (index in presets) {
+    if(presets[index].nodeName == 'INPUT') {
+      presets[index].onclick = (e) => {
+        for(indexB in presets) {
+            presets[indexB].style = "background-color: #ddd; font-weight: lighter;"
+        }
+        e.target.style = "background-color: #ddd; font-weight: heavier;"
+        preset = e.target.alt;
+        getFrame(frames[slideNum]);
+      };
+    }
+  }
+  let frameDescriptionContainer = document.getElementsByName('frame-description-container');
+  let nextButton = document.getElementById('next-button');
+  let prevButton = document.getElementById('previous-button');
+  let frameDescription = document.getElementById('frame-description');
+  let frameTitle = document.getElementById('frame-title');
+  let frameCanvas;
+  let frameContext;
+  let slideControls = document.getElementById('slide-controls');
+  let canvasContainer = document.getElementById('canvas-container');
+  let options = 
+  nextButton.onclick = () => { 
+    slideNum = (slideNum + 1 + 10) % 10;
+    getFrame(frames[slideNum]);
+  };
+  prevButton.onclick = () => { 
+    slideNum = (slideNum - 1 + 10) % 10;
+    getFrame(frames[slideNum]);
+  };
+  const getFrame = (frame) => {
+    if (canvasContainer.hidden == true) {
+      canvasContainer.hidden = false;
+      frameCanvas = document.createElement('canvas');
+      canvasContainer.appendChild(frameCanvas);
+      let containerWidth = canvasContainer.offsetWidth;
+      frameCanvas.style = "margin-right:auto; margin-left:auto; display:block;"
+      frameCanvas.width = containerWidth;
+      frameCanvas.height = containerWidth;
+      frameCanvas.id = "frame-canvas"
+      frameCanvas.onclick = () => paint(frameCanvas, frames[slideNum].imageData());
+    }
+    slideControls.hidden = false;
+    frameTitle.innerHTML = frame.title;
+    frameDescription.innerHTML = frame.description;
+    if (preset == "random" || preset == "mapleLeaf") {
+      IFS.defaultOptions.scale = 0.7;
+    } else if (preset == "binaryTree") {
+      IFS.defaultOptions.scale = 0.8;
+    } else {
+      IFS.defaultOptions.scale = 0.9;
+    }
+    paint(frameCanvas, frame.imageData());
+  }
+  const download = () => {
+    
+  }
+</script>
+
+<p><input type="button" id="download-prep-button" value="prepare download" />
+<br />
+<a id="download-link" download="IFS-output-image." hidden="true">
+  Download
+</a></p>
+
+<script>
+  // I don't know why this doesn't work
+  let downloadPrepButton = document.getElementById('download-prep-button');
+  let downloadLink = document.getElementById('download-link');
+  downloadPrepButton.onclick = () => {
+    let imageHREF = document.getElementById('frame-canvas').getContext('2d').getImageData();
+    downloadLink.href = imageHREF;
+    downloadLink.hidden = false;
+  }
+</script>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2000-01-01T00:00:00+08:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet --><div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">Subscribe</a></div></div><div class="article__license"><div class="license">
     <p>This work is licensed under a <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> license.
@@ -350,7 +553,7 @@
 
 
 
-    <script>console.log('included scripts were: IFS');</script>
+    <script>console.log('included scripts were: IFS, signal-processing');</script>
     
     
     
@@ -416,13 +619,36 @@ const getLinear = M => p => {
     p[0] * M[0][1] + p[1] * M[1][1]
   ];
 }
-const randomAffine = () => {
+const randomAffine = (rotation, uniform) => {
   let r = [0,0,0,0,0,0].map(() => Math.random() * 2 - 1);
+  if (!rotation) { [r[1],r[2]] = [0,0]; }
+  if (uniform) { r[3] = r[0]; }
   return getAffine([[r[0], r[1]], [r[2], r[3]]], [r[4], r[5]]);
 }
 const randomLinear = () => {
   let r = [0,0,0,0].map(() => Math.random() * 2 - 1);
   return getLinear([[r[0], r[1]], [r[2], r[3]]], [r[4], r[5]]);
+}
+const inferTranslation = affine => {
+  return affine([0,0]);
+}
+const inferLinear = affine => {
+  let v = inferTranslation(affine);
+  return [vMinus(affine([1,0]), v), vMinus(affine([0,1]), v)]
+}
+const inferInverse = affine => {
+  return getComposition(
+    getTranslation(vScale(-1, inferTranslation(affine))),
+    getLinear(mInverse(inferLinear(affine))),
+  )
+}
+const getFixedPoint = affine => {
+  let v = inferTranslation(affine);
+  console.log('translation is '.concat(v));
+  let phi = inferLinear(affine);
+  console.log('linear part is '.concat(phi));
+  let coefficients = mInverse([vMinus(phi[0], [1,0]), vMinus(phi[1], [0,1])]);
+  return getLinear(coefficients)(vScale(-1, v))
 }
 /* DISCRETE MATHS
  */
@@ -508,6 +734,16 @@ const paintPixelBox = ([x,y], imgData, rgba, size) => {
   }
 }
 
+const drawPoint = (point, imageData, style, rgba, options) => {
+  switch (style) {
+    case 'dots':
+      paintPixel(point, imageData, rgba);
+      break;
+    case 'blobs':
+      paintPixelBox(point, imageData, rgba, options);
+      break;
+  }
+}
 const drawLine = ([x1,y1], [x2,y2], imgData, rgb) => {
   let steep = Math.abs(y2 - y1) > Math.abs(x1 - x2);
   if (steep)   { [x1, y1] = [y1, x1]; [x2, y2] = [y2, x2]; }
@@ -589,14 +825,35 @@ const IFS = {
     );
     if (def.probabilities === 'equal') {
       def.probabilities = Array(def.transforms.length).fill(1/def.transforms.length);
+      def.probBins = cummulative(def.probabilities);
+      def.probabilities = 'equal';
+    } else if (def.probabilities === 'area-weighted') {
+      let scales = def.transforms.map(f => {
+        let e1 = vMinus(f([1,0]), f([0,0]));
+        let e2 = vMinus(f([0,1]), f([0,0]));
+        return e1[0] * e2[1] - e2[0] * e1[1];
+      }).map(x => Math.abs(x) + 0.25 / def.transforms.length);
+      let M = scales.reduce((a,b) => a + b);
+      def.probabilities = scales.map(factor => factor / M);
+      console.log(def.probabilities);
+      def.probBins = cummulative(def.probabilities);
+      def.probabilities = 'area-weighted';
+    } else {
+      def.probBins = cummulative(def.probabilities);
     }
-    def.getPixel = p => def.ctf(p).map(e => Math.floor(e));
-    def.probBins = cummulative(def.probabilities);
+    def.asPixel = p => def.ctf(p).map(e => Math.floor(e));
+    IFS.report = {};
+    IFS.report.transforms = def.transforms.map(affine => {
+      return [inferLinear(affine), inferTranslation(affine)];
+    })
+    IFS.report.fixedPoints = def.transforms.map(affine => { return getFixedPoint(affine);
+    });
   },
   get: (def, n, options) => () => {
     options = override(IFS.defaultOptions, options);
     IFS.init(def, options);
-    return getIFS(def, n, options);
+    IFS.lastOutput.push(getIFS(def, n, options));
+    return IFS.lastOutput.slice(-1)[0];
   },
   applyTransform: def => p => {
     let rand = Math.random();
@@ -605,6 +862,7 @@ const IFS = {
     IFS.lastTransform = choice;
     return def.transforms[choice](p);
   },
+  lastOutput: [],
   defaultOptions: {
     runnable: false,
     style: 'dots',
@@ -642,21 +900,16 @@ const getIFS = (def, N, options) => {
       vAdd(def.referenceRegion.o, def.referenceRegion.x, def.referenceRegion.y),
       vAdd(def.referenceRegion.o, def.referenceRegion.y)
     ];
-    let [p,q,r,s] = [a,b,c,d].map(p => def.getPixel(p));
+    let [p,q,r,s] = [a,b,c,d].map(p => def.asPixel(p));
     drawPolygon([p,q,r,s], imageData, [0,0,0,255]);
     IFS.lastTransform = 0;
     def.transforms.map(f => {
-      [p,q,r,s] = [a,b,c,d].map(p => def.getPixel(f(p)));
+      [p,q,r,s] = [a,b,c,d].map(p => def.asPixel(f(p)));
       drawPolygon([p,q,r,s], imageData, thisColor().concat(255));
       IFS.lastTransform += 1;  
     })
   }
   // MAIN LOOP
-  if(options.style == 'lines') {
-    // draw initial point before the main loop begins
-    let pixelOrigin = def.ctf(p).map(e => Math.floor(e));
-    paintPixelBox(pixelOrigin, imageData, thisColor().concat(255), options.blobsSize);
-  }
   for (var i = 0; i < N; i++) {
     let q = IFS.applyTransform(def)(p);
     let [a, b] = [p,q].map(v => def.ctf(v).map(e => Math.floor(e)));
@@ -670,12 +923,24 @@ const getIFS = (def, N, options) => {
     }
     p = q;
   }
-  let a = def.ctf(options.initialPoint).map(e => Math.floor(e));
-  if (options.style == 'dots') {
-    paintPixel(a, imageData, [255,0,0,255]);
-  } else if (options.style == 'blobs' || options.style == 'lines') {
-    paintPixelBox(a, imageData, [255,0,0,255], options.blobsSize);
+  drawPoint(
+    def.ctf(options.initialPoint).map(e => Math.floor(e)),
+    imageData,
+    options.style,
+    [255,0,0,255],
+    options.blobsSize
+  );
+  if (options.fixedPoints) {
+    IFS.lastTransform = 0;
+    def.transforms.map(affine => {
+      let fixedP = getFixedPoint(affine);
+      console.log('fixed point is: '.concat(fixedP));
+      paintPixelBox(def.asPixel(fixedP, imageData), imageData, thisColor().concat(255), 4);
+      paintPixelBox(def.asPixel(fixedP, imageData), imageData, [255,0,0,255], 2);
+      IFS.lastTransform += 1;  
+    })
   }
+  // IFS.report = getReport(def);
   return imageData;
 }
 
@@ -757,21 +1022,142 @@ const serpinski = {
 const random = {
   scale: 0.7,
   order: 4,
+  rotation: true,
+  uniform: false,
   referenceRegion: {
     o: [-0.5,-0.5],
     x: [1   ,0] ,
     y: [0   ,1],
   },
   transforms: [], // defined on object initialization
-  probabilities: [], 
+  probabilities: 'area-weighted', 
   init: () => {
     random.transforms = [];
     for (var i = 0; i < random.order; i++) {
-      random.transforms = random.transforms.concat(scaleTransform(randomAffine(), random.scale))
+      random.transforms = random.transforms.concat(scaleTransform(randomAffine(random.rotation, random.uniform), random.scale))
     }
-    random.probabilities = Array(random.order).fill(1/random.order);
   },
 };
+
+      </script>
+    
+      <script async="true" defer>
+        
+let canvas;
+let context;
+const setup = () => {
+  canvas = document.getElementById("frame-canvas");
+  context = canvas.getContext("2d");
+}
+
+const singleBinaryChannel = (imageData) => {
+  let compressedData = Array(imageData.width * imageData.height);
+  for(var i = 0; i < compressedData.length; i++) {
+    if (imageData.data[i+2] != 0) {
+      compressedData[i] = 1;
+    } else {
+      compressedData[i] = 0;
+    }
+  }
+  return {height: imageData.height, width: imageData.width, data: compressedData};
+}
+const getPixel = (point, imageData) => {
+  let [x,y] = [point[0], point[1]];
+  if (x < 0
+  ||  x > imageData.width
+  ||  y < 0
+  ||  y > imageData.height) {
+    return [0,0,0,0];
+  } else {
+    let index = (imageData.width * point[1] + point[0]) * 4;
+    return [
+      imageData.data[index],
+      imageData.data[index + 1],
+      imageData.data[index + 2],
+      imageData.data[index + 3],
+    ];
+  }
+}
+const copy = arr => {
+  let newArr = Array(arr.length);
+  for (var i = 0; i < arr.length; i++) {
+    newArr[i] = arr[i];
+  }
+  return newArr;
+}
+const half = v => v.map(a => Math.floor(a / 2));
+
+const dwt = (ID, order) => {
+  let returnData = new ImageData(ID.width, ID.height);
+  let [height,width] = [ID.height,ID.width];
+  let [halfHeight, halfWidth] = half([height, width]);
+  let workingData = new ImageData(ID.width, ID.height);
+  for (var i = 0; i < workingData.data.length; i++) {
+    workingData.data[i] = ID.data[i];
+  }
+  for (var nesting = 1; nesting <= order; ++nesting) {
+    for (var i = 0; i < width; i += 2) {
+      for (var j = 0; j < height; j += 2) {
+        let [TL, BL, TR, BR] = [
+          getPixel([i,j], workingData),
+          getPixel([i,j+1], workingData),
+          getPixel([i+1,j], workingData),
+          getPixel([i+1,j+1], workingData)
+        ].map(x => (x[3] > 0 ? ((x[0] < 150) ? 1 : 0) : 0));
+        let A = Array(3).fill(255 - (+ TL + BL + TR + BR) * 63).concat(255);
+        let V = Array(3).fill(127 - ((+ TL + BL - TR - BR) * 127)).concat(255);
+        let H = Array(3).fill(127 - ((- TL + BL - TR + BR) * 127)).concat(255);
+        let D = Array(3).fill(127 - ((+ TL - BL - TR + BR) * 127)).concat(255);
+        
+        paintPixel([i/2, j/2], returnData, A);
+        paintPixel([i/2 + halfWidth, j/2], returnData, V);
+        paintPixel([i/2, j/2 + halfHeight], returnData, H);
+        paintPixel([i/2 + halfWidth, j/2 + halfHeight], returnData, D);
+      }
+    }
+    [height, width, halfHeight, halfWidth] =
+      half([height, width, halfHeight, halfWidth]);
+    for (var i = 0; i < workingData.data.length; i++) {
+      workingData.data[i] = returnData.data[i];
+    }
+  }
+  return returnData;
+}
+
+const W = (scale, v) => {
+  let f = 1 / scale;
+  return img => {
+    let result = 0;
+    for(var i = 0; i < img.width; i++) {
+      for(var j = 0; j < img.height; j++) {
+        let pixelValue = getPixel([i,j], img)
+        if (pixelValue[3] > 0) {
+          let pointMass = ricker2d(f)(vMinus([i,j], v));
+          result += pointMass;
+        }
+      }
+    }
+    return result
+  }
+}
+
+const cwt = (range, samplingRate, pixelPos) => {
+  return (img, inverseProjection) => {
+    let arr = []
+    for (var scale = range[0]; scale < range[1]; scale += samplingRate) {
+      actualPos = inverseProjection(pixelPos);
+      arr = arr.concat(W(scale, actualPos)(img));
+    }
+    return arr;
+  }
+}
+const square = x => x * x;
+const ricker1d = f => {
+  return t => (1 - 2 * square(Math.PI * f * t)) * Math.exp(-square(Math.PI * f * t));
+}
+const ricker2d = f => {
+  return ([x,y]) => ricker1d(f)(Math.sqrt(square(x) + square(y)));
+}
 
       </script>
     
