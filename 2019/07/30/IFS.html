@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="en">
   <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Iterated Function Systems / Crayon Impressions of Leaves - Joel Strouts</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Interactive IFS Toy - Joel Strouts</title>
 
-<meta name="description" content="I am about half way through my time working here and I have reached a crucial turning point in my research. All this time the goal has been to make progress ...">
+<meta name="description" content="I’ve finished the first stage of my research! I will write in detail about what I’ve learned in a future post but for now I would just like to share an inter...">
 <link rel="canonical" href="https://joelstrouts.com/2019/07/30/IFS.html"><link rel="alternate" type="application/rss+xml" title="Joel Strouts" href="/feed.xml"><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png?v1.1=LbyJdBL709">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png?v1.1=LbyJdBL709">
 <link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png?v1.1=LbyJdBL709">
@@ -274,75 +274,24 @@
         <ul><li class="navigation__item"><a href="/archive.html">Archive</a></li><li class="navigation__item"><a href="/about.html">About</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
       </nav></div>
   </header>
-</div><div class="page__content"><img class="article__header--cover" src="/images/streetshot1a.jpg"></img><div class ="main"><div class="grid grid--reverse">
+</div><div class="page__content"><img class="article__header--cover" src="/images/fractal-plant1-min.jpg"></img><div class ="main"><div class="grid grid--reverse">
 
               <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div></aside></div>
 
               <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
 
-<!-- end custom main top snippet --><article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>Iterated Function Systems / Crayon Impressions of Leaves</h1></header><span class="split-space">&nbsp;</span>
+<!-- end custom main top snippet --><article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>Interactive IFS Toy</h1></header><span class="split-space">&nbsp;</span>
           <a class="edit-on-github"
             title="Edit on Github"
             href="https://github.com/joelstrouts/joelstrouts.github.io/tree/master/_posts/2019-07-30-IFS.md">
-            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="Iterated Function Systems / Crayon Impressions of Leaves"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>Jul 30, 2019</span>
-            </li></ul></div><meta itemprop="author" content="Joel Strouts"/><meta itemprop="datePublished" content="2019-07-30T00:00:00+08:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="Interactive IFS Toy"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>Jul 30, 2019</span>
+            </li></ul></div><meta itemprop="author" content="Joel Strouts"/><meta itemprop="datePublished" content="2019-07-30T00:00:00+01:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
-<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><p>I am about half way through my time working here and I have reached a crucial turning point in my research. All this time the goal has been to make progress on the reverse engineering problem, but it was first necessary to familiarise myself with the forward-engineering. I am <em>now</em> familiar with that forward-engineering. In this post I sum up what I’ve learned and embellish the descriptions with pretty outputs from the program I wrote.</p>
+<!-- end custom article top snippet --><div class="article__content" itemprop="articleBody"><p>I’ve finished the first stage of my research! I will write in detail about what I’ve learned in a future post but <i>for now</i> I would just like to share an interactive presentation I put together to explain the generative process for producing IFS images which is at the very heart of what I am doing.</p>
 
-<!-- more -->
-<blockquote>
-  <p>Note: if you’re not drawn in by technical details, don’t go! Skip to <a href="#the-image-generation-process-presented-interactively-and-step-by-step">the interactive demonstration</a> I’m very proud of it! Maybe the details will be more interesting after some intriguing pictures.</p>
-</blockquote>
+<!--more-->
 
-<p>There’s this one detail about the creation of these fractal images that really confused me to begin with (and still to an extent now, although familiarity softens much frustration), and that’s what I’d like to talk about here. It’s this mismatch between the theory as I understood it, and the actual methods used in practice which didn’t seem at all related to that theory.</p>
-
-<p>Here’s how I originally understood the process used to generate reproductions of fractal images:</p>
-<ul>
-  <li>these fractals have smaller copies of themselves embedded within themselves</li>
-  <li>if you specified the exact way that the copies were embedded, then you could reproduce the image by repeatedly making copies according to that rule</li>
-  <li>For example: if you started with the stem of the fern, then copying it around over and over again, making smaller and smaller copies of that one stem, you would end up with a skeletal model of the same fern that - after enough iterations - would look just like the original.</li>
-</ul>
-
-<p>My reading on the topic of IFS fractals has informed me that this conception is not quite in line with the common formal definition. This is the gist of the mathematical formulation:</p>
-<ul>
-  <li>Rules for how to make copies define a ‘contraction’ on the input space. (this is the formal way of saying the copies must be <em>smaler</em> than the original region, which makes intuitive sense because if that was not the case the process would grow outwards endlessly rather than settling down inwardly)</li>
-  <li>the visual form we call the ‘fractal’ corresponds to the set of all points that are invariant under this contraction. ie. After applying all the rules, if the resulting set of points is identical to the set you started with then that set was invariant under the contraction, so you have identified the fractal set, called the attractor.</li>
-  <li>this set of points is called the ‘attractor’ because no matter the region you start with, the application of the contraction rule always reduces the difference between the input region and the fractal set (an observation which can formalised by defining a distance function on the set of all compact regions in the space; the Hausdorf distance).</li>
-  <li>It is therefore possible to generate an image of the attractor by choosing some reasonable starting set then repeatedly applying the contraction to that region until its form has mangled into one that ceases to change significantly on further contractive iterations.</li>
-</ul>
-
-<p>Now <em>that</em> is all well and good, but here’s the screwy thing: the method for generating these images is nothing like either of those descriptions. Nothing like it.</p>
-
-<p>I’m going to describe the actual method which is used in detail so hopefully you can understand how strange it is.</p>
-
-<h2 id="making-the-rules">Making the rules</h2>
-<p>The idea of ‘contractions’ on the input space is a powerful one because it is not very prescriptive about the sorts of functions we have to use as transformation rules. It just enforces this intuitively reasonable notion that the repeated application of the rule has to result in a settling down not a blowing up. We will not work with this very general notion however, we are going to focus on one specific type of transformation which is particularly well suited to characterising fractal images as we are familiar with them: <strong>Affine</strong> transformations. Let’s define that term.</p>
-
-<p>A transformation is a rule that tells us how to move around different points based on their position. Once we know how to move individual points around we can then ask what happens to every point within a shape or region to see how it warps space at a more macro level.</p>
-
-<p>A rule that says ‘all points move to the position $(4,3)$’ is a perfectly good example of a transformation.</p>
-
-<p>A rule that says ‘multiply the $x$ coordinate by two’ is also a perfectly good transformation.</p>
-
-<p>They can be as simple or as complex as you like, so long as the definition is unambiguous for every input position.</p>
-
-<p>Transformation that completely mangles any input region into something unrecognisable will not be much use for describing fractal <em>self similarity</em>. We choose affine transformations to work with then because, like the name implies, while they may warp their input regions, the resulting outputs always share an <em>affinity</em> with the corresponding inputs.</p>
-
-<p>Each affine transformation can be uniquely specified by the way it morphs a rectangle in the input space to a parallelogram of some description in the output space, so you can think of affine transformations as encompassing all of: shifting, scaling (not necessarily by the same amount in each direction), and rotating. Mathematically speaking, they are given by the composition of a linear transformation and a translation:</p>
-
-<!-- TODO: it would be cool to add a little interactive thing that lets you select input region and output region and see how the resulting affine transformation maps points/regions/looks as represented with a matrix and translation vector -->
-
-<script type="math/tex; mode=display">% <![CDATA[
-f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatrix}}\begin{bmatrix}x\\y\end{bmatrix} + \color{orange}{\begin{bmatrix}e \\ f\end{bmatrix}} %]]></script>
-
-<p>Where the light green matrix is the linear part of the composition, and the orange vector is the translation vector.</p>
-
-<p>The translation does nothing more than move the region from one location to another, whereas the linear transformation captures all of the squishing and rotating.</p>
-
-<h2 id="using-the-rules">Using the Rules</h2>
-<p>That’s the bit which every conception of these IFS fractals agrees on. Affine transformations characterise the fractal. So you’ve settled on your copying rules, how do you draw a picture with them? The formal method outlined above says start with some other region then just keep morphing it with your rules over and over until it looks right. Pleasantly clean in its conception but somewhat of a pain computationally, to have to apply the function for <em>every single point</em> in some region. Here’s what’s actually done:</p>
-
-<h3 id="the-image-generation-process-presented-interactively-and-step-by-step">The Image generation process, presented interactively and step by step:</h3>
+<h2 id="the-demonstration">The Demonstration:</h2>
 
 <!-- 
   TODO:
@@ -361,15 +310,18 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
   <div id="report"></div>
   <!-- contains the buttons -->
   <div id="presets">
-    <input style="background-color: #ddd" type="button" value="Barnsley Fern" alt="barnsleyFern" />
-    <input style="background-color: #ddd" type="button" value="Maple Leaf" alt="mapleLeaf" />
     <input style="background-color: #ddd" type="button" value="Binary Tree" alt="binaryTree" />
     <input style="background-color: #ddd" type="button" value="Serpinski" alt="serpinski" />
     <input style="background-color: #ddd" type="button" value="Sand Dollar" alt="sandDollar" />
+    <input style="background-color: #ddd" type="button" value="Maple Leaf" alt="mapleLeaf" />
+    <input style="background-color: #ddd" type="button" value="Barnsley Fern" alt="barnsleyFern" />
     <input style="background-color: #ddd" type="button" value="Random" alt="random" />
   </div>
+  <div id="lock-box" style="visibility: hidden;">
+    <input id="check-box" type="checkbox" value="Keep current random transformation" checked="" /> Lock current transformation (rather than generating a new pattern each time)
+  </div>
   <!-- contains the textual desctiption -->
-  <h4 id="frame-title">↑ Select one of the above predefined rule sets to apply procedure to ↑</h4>
+  <h4 id="frame-title">↑ Choose an image to generate ↑</h4>
   <div id="slide-controls" hidden="true">
     <input style="background-color: #ddd" type="button" value="previous slide" id="previous-button" />
     <input style="background-color: #ddd" type="button" value="next slide" id="next-button" />
@@ -387,78 +339,88 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
     { // 0
       title:
       "The final result of the image generation process.",
-      description:
-      'This is what we are going to build up to - the final result. The only information needed to generate this image is knowledge of the self-similar transformations that characterise it. How exactly is knowledge of these transformations applied to produce such an image though? That is what we are going to walk through step by step in this slideshow.',
-      imageData: () => IFS.get(eval(preset), 250000),
+      description: () =>
+      "The image you've just generated is entirely determined the following set of equations:" + IFS.latex + "but how? How exactly are these functions used to generate the above image? That is what we are going to examine.",
+      options: {},
+      imageData: () => IFS.get(eval(preset), 250000, frames[0].options),
     },
     { // I
       title:
       "I. The initial starting point",
-      description:
-      "We start with just one point. For simplicity's sake, the coordinates of this point are chosen to be (0,0), but it actually doesn't matter where you choose to begin. In generating these images the point that you start with is moved around so many times that the importance of that first position is, in the end, thouroughly eroded. Like the classic street magic trick where you have to follow the ball underneath the three cups, after a while it seems impossible to determine where it all began anyway. NOTE: although the starting position may appear to be different for each choice of fractal, actually the red point is always (0,0). What's going on is that in each case we are looking at a different section of the cartesian plane.",
-      imageData: () => IFS.get(eval(preset), 0, {style: 'blobs', blobsSize: 3}),
+      description: () => 
+      "Yes, the image is generated from a handful (three, four, more perhaps) functions. What are these functions though? You can think of each function as representing a system of rules which tell you how to move points around. That is, if I have a point located in the top right of the image, where should I move it to? how about if it was in the top left?<br><br> Each function is a different set of rules describing exactly where each point should end up depending on where it started. That is why the first step in the image-generation process is to draw just one point. It is our first point. In the next step we will use the position of that first point to figure out where the second point should go, according to one of the functions.",
+      options: {style: 'blobs', blobsSize: 3},
+      imageData: () => IFS.get(eval(preset), 0, frames[1].options),
     },
     { // II
       title:
       "II. The very first iteration",
-      description:
-      "<i>This</i> is the core process. We take the position of the last point we plotted (in this case the only point) and we use one of the rules to decide where to move it to. Here the last point (the starting point) has been marked in red, and the new point is marked in black. NOTE: you may have not noticed any change between this slide and the last slide. If that is the case it is because the transformation that was applied mapped the initial position right back onto itself. <b>If you re-run the process</b> (you can do this by clicking again on the preset you wish to load, or clicking on the canvas itself) you will see that the new position is not the same every time - a different one of the transformation rules is chosen at random each time.",
-      imageData: () => IFS.get(eval(preset), 1, {style: 'lines', blobsSize: 3}),
+      description: () =>
+      "This is the very core process. The initial position, marked in red, was fed into one of the functions and the new position (as determined by the function) was spat out - the new position now marked in black. But hang on, which function? There was more than one function in the definition, and if each one is a different set of rules - how was it decided which rules got used? Well that's the funny part of the algorithm - it was chosen at random. At each step in the process the function which is used gets selected randomly from the handful given in the beginning. Recall that our functions are given by:" + IFS.latex + "In thise case the <i>particular</i> function which decided where the black point went in <i>this</i> iteration was: $f_{" + (IFS.lastTransform + 1) +"(\\mathbf{x})}$. If you want to see what would have happened if a different set of rules was applied, click on the image to regenerate it and the function will be randomised again! <br><br> Note: Although the functions are chosen at random, some are chosen more often than others (so if you've regenerated the image a few times and got the same one each time that's probably why).",
+      options: {style: 'lines', blobsSize: 3},
+      imageData: () => IFS.get(eval(preset), 1, frames[2].options),
     },
     { // III
       title:
-      "III. More iterations, colorised",
-      description:
-      "We make one small change to our method while things are still simple and uncluttered: we colour the lines and the points differently according to which transformation rule was responsible for each motion. The colours themselves are not significant, but lines with the same colour correspond to movements caused by the same transformation rule. This way it's a little easier to see what's happening under the hood.",
-      imageData: () => IFS.get(eval(preset), 5, {style: 'lines', color: 'last', blobsSize: 3}),
+      "III. One more step, now with colour!",
+      description: () => 
+      "Picking up from where we left off, we choose another function at random. This time instead of moving the starting point like before, we work with the most recent position, after the last function was applied. The result is three dots, one where we started, one after the first (randomly chosen) function was applied, and then the last one after the new (also randomly chosen) function was used. We draw a line following the path made by our point. <br><br>For a little more clarity we have coloured the lines tracing each movement from one position to the next. The colour of each line should correspond with the colour of one of our functions shown here:" + IFS.latex,
+      options: {style: 'lines', color: 'last', blobsSize: 3},
+      imageData: () => IFS.get(eval(preset), 2, frames[3].options),
       // function call:
       // IFS.get(eval(preset), 5, {style: 'lines', color: 'last'});
     },
     { // IV
       title:
       "IV. 50 Steps in, some patterns emerge.",
-      description:
-      "Here we plot the path that our first point follows as we apply this process over and over again, more and more times. Slowly, what seems chaotic shows form. From erratic motions to repeated patterns. Though the path is far from perfectly tracing the pattern we are seeking, we start to see its characteristics in the regions that are visited and revisited.",
-      imageData: () => IFS.get(eval(preset), 50, {style: 'lines', color: 'last', blobsSize: 3}),
+      description: () =>
+      "So now you get how it works - we choose a function at random, use it to calculate a new position based on the last one, then colour the path in-between according to which function was used. <br><br> Now you know how the process works, we can start cranking up the number of steps! Here we've done fifty steps, and the path is definitely random, but there's some order too. The same sorts of arcs traced out over and over. What do you think it will look like when we do even more?<br><br> The functions, for reference:" + IFS.latex,
+      options: {style: 'lines', color: 'last', blobsSize: 3},
+      imageData: () => IFS.get(eval(preset), 50, frames[4].options),
       // function call:
       // IFS.get(eval(preset), 10-1000, {style: 'lines', color: 'last'});
     },
     { // V
       title:
       "V. The output after 2000 of these random jumps",
-      description:
-      "This is perhaps my favourite step in the process. It is absolutely clear now that these rules when applied together produce something orderly, but the resulting form is still so messy and confusing. The step that nicely straddles the unpredictable beginnings and the completely predetermined end.",
-      imageData: () => IFS.get(eval(preset), 2000, {style: 'lines', color: 'last', blobsSize: 0}),
+      description: () =>
+      "Pretty tangled! Is it what you expected? I've reduced the size of the blobs left at each stopping point so they are just little dots, that way you can see the lines better. The outline of the shape has been completely traced now, and as for what's going on in the middle - something interesting! While the lines are very helpful for visualising the process, they are of course absent from the final image so in the next step we will be removing them. <br><br> The functions, for reference:" + IFS.latex,
+      options: {style: 'lines', color: 'last', blobsSize: 0},
+      imageData: () => IFS.get(eval(preset), 2000, frames[5].options),
       // function call:
       // IFS.get(eval(preset), 10,0000, {style: 'lines', color: 'last'});
     },
     { // VI
       title:
       "VI. What you see when you remove all the connecting lines",
-      description:
-      "The path becomes so tangled and self-crossing that it is easier to appreciate what's going on by actually giving up on following the movements and instead just focusing the spots which were visited along the way. Less ball of thread, more breadcrumbs. As we dot around, following one transformation after another, we place a marker at each resting place, colored according to the transformation responsible for its last motion. The result is much more sparse but much more orderly. The only thing left to do now is repeat the process many more times to flesh out the picture.",
-      imageData: () => IFS.get(eval(preset), 2000, {color: 'last'}),
+      description: () =>
+      "You should just be able to make out the final form now, but a bit faint perhaps - turns out that with the lines removed 2000 iterations doesn't seem like so many after all. Note: when we removed the lines, we kept colour on the points - that is to say: each point is coloured according to which function was responsible for moving it to its current position from whichever position came before.<br><br> The functions, for reference:" + IFS.latex,
+      options: {color: 'last'},
+      imageData: () => IFS.get(eval(preset), 2000, frames[6].options),
     },
     { // VII
       title:
-      "VII. Cranking up the iterations from 2,000 to 100,000",
-      description:
-      "And suddenly the shape comes into focus, and refreshing the picture seems to have little effect other than to cause the dancing of points around their already well settled places. It turns out these positions were in some way inevitable.",
-      imageData: () => IFS.get(eval(preset), 100000, {color: 'last'}),
+      "VII. From 2,000 to 100,000",
+      description: () =>
+      "The image is revealed! At this point we're kind of done. Not such a complex process really, kind of magical that it works. Of course, this image has colour and the original didn't, but it's for pedagogical purposes! I don't know about you, but when I first saw the pattern coloured like this, I was quite surprised. Something caught me off gaurd about how the colours segregate themselves into clearly defined regions like that. I think I expected them to be all mixed in together more. (that does happen to be the case for some of the random functions however). You can see how different regions in the image correspond to specific functions from the definition. <br><br>The functions, for reference:" + IFS.latex,
+      options: {color: 'last'},
+      imageData: () => IFS.get(eval(preset), 100000, frames[7].options),
     },
     { // VIII
       title:
       "VIII. Superimposing the bounding boxes to indicate the different rules",
-      description:
-      "Here we make one last addition to our visual exposition; one box surrounding the entire input region, and then one coloured output box for each rule making up the fractal definition. In this way the impact of each transformation is made absolutely apparent.",
-      imageData: () => IFS.get(eval(preset), 100000, {color: 'last', bboxes: true}),
+      description: () =>
+      "To make that relationship (hopefully) even clearer, I've drawn a coloured box for each function which is supposed to give some indication of what it's really doing, let me explain what they mean: Look at the largest box, the black one. Now choose one of the coloured ones, and compare what you see in the big black box to the contents of the smaller, warped, coloured box. The contents of the smaller box should be a small copy of what was in the larger box! That's how the functions really work, you can describe their effect by drawing input/output boxes like this because they keep everything which is within and without in proportion to the change in shape and position of the box. Changing the numbers in the functions essentially correspons to changing the coordinates of these output boxes. <br><br>The functions, for reference:" + IFS.latex,
+      options: {color: 'last', bboxes: true},
+      imageData: () => IFS.get(eval(preset), 100000, frames[8].options),
     },
     { // IX
       title:
       "IX. Ending where we started",
-      description:
-      "By removing the didactic coloring and inclusion of bounding boxes to indicate the transformations at work, we find ourselves back where we started - the process of generating the fractal from its transformation-specification is complete.",
-      imageData: () => IFS.get(eval(preset), 250000, {color: 'uniform'}),
+      description: () =>
+      "By removing the didactic coloring, the overlayed input/output boxes and, last of all, upping the iteration count now to 250,000 - we conclude our exposition. Now you understand why you see the points which make up the image dance around somewhat when you click to regenerate the image - because the exact positions are a result of this essentially random process. It is only from the aggregate of many many random movements that the pattern emerges. I hope you found this explanation interesting and understandable!",
+      options: {color: 'uniform'},
+      imageData: () => IFS.get(eval(preset), 250000, frames[9].options),
     },
   ];
 </script>
@@ -469,6 +431,7 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
   // events / content
   let slideNum = 0;
   let preset = 'binaryTree';
+  let lockBox = document.getElementById('lock-box');
   let presets = [...document.getElementById('presets').childNodes];
   let loadPreset = (e) => {
     preset = e.target.alt;
@@ -482,6 +445,12 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
         }
         e.target.style = "background-color: #ddd; font-weight: heavier;"
         preset = e.target.alt;
+        console.log(preset);
+        if (preset == 'random') {
+         lockBox.style = "visibility: visible;";
+        } else {
+         lockBox.style = "visibility: hidden;";
+        }
         getFrame(frames[slideNum]);
       };
     }
@@ -491,6 +460,7 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
   let prevButton = document.getElementById('previous-button');
   let frameDescription = document.getElementById('frame-description');
   let frameTitle = document.getElementById('frame-title');
+  let checkBox = document.getElementById('check-box');
   let frameCanvas;
   let frameContext;
   let slideControls = document.getElementById('slide-controls');
@@ -514,11 +484,19 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
       frameCanvas.width = containerWidth;
       frameCanvas.height = containerWidth;
       frameCanvas.id = "frame-canvas"
-      frameCanvas.onclick = () => paint(frameCanvas, frames[slideNum].imageData());
+      frameCanvas.onclick = () => {
+        if (checkBox.checked) { 
+          frames[slideNum].options.new = false;
+        } else {
+          frames[slideNum].options.new = true;
+        }
+        paint(frameCanvas, frames[slideNum].imageData())
+        frameDescription.innerHTML = frames[slideNum].description();
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+      };
     }
     slideControls.hidden = false;
     frameTitle.innerHTML = frame.title;
-    frameDescription.innerHTML = frame.description;
     if (preset == "random" || preset == "mapleLeaf") {
       IFS.defaultOptions.scale = 0.7;
     } else if (preset == "binaryTree") {
@@ -526,31 +504,23 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
     } else {
       IFS.defaultOptions.scale = 0.9;
     }
+    if (checkBox.checked) { 
+      frame.options.new = false;
+    } else {
+      frame.options.new = true;
+    }
     paint(frameCanvas, frame.imageData());
-  }
-  const download = () => {
-    
+    frameDescription.innerHTML = frame.description();
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
 </script>
 
-<p>So there you have it, for some reason if you just choose any random starting point then plot the result of (also randomly) applying each transformation rule to that point over and over again, the result is a shockingly accurate approximation of your image.</p>
+<p>Clicking on one of the buttons in the box above will initiate the presentation. Use the next/previous slide buttons to walk through at your own pace.</p>
 
-<h3 id="notes--clarifications">Notes / Clarifications:</h3>
-<ul>
-  <li>This process is often referred to as the ‘chaos game’ method.</li>
-  <li>When I say that the transformations are chosen at random, that is true, and the probability of any particular transformation being chosen at a given iteration is something you have to specify before beginning the process. (Tweaking these probabilities has the effect of making regions in the output associated with the corresponding transformation either more or less dense with points ending up there)</li>
-  <li>About <a href="https://github.com/joelstrouts/blog/blob/master/_includes/scripts/custom/IFS.js">my implementation</a>: It’s not very fast, at least at the time of writing. The methods I used to implement this IFS plotter gave no real consideration to computational efficiency. My priority was to model in the code my understanding of the problem as cleanly as possible in a familiar language. At some point in the future I may rewrite the performance critical parts, as it stands however, plotting &gt;500,000 points at a time is quite resource intensive.</li>
-</ul>
+<h3 id="debrief">Debrief</h3>
 
-<h3 id="why-does-it-work">Why does it work?</h3>
-<p>I think what this really instills in me is the sense that there is something very robust about this ‘attractor’ property of the set. You really don’t have to try too hard to find it. I think this method of imaging the set is like taking a crayon imprint of a leaf through paper or something. A scattering of points over the relevant region can hardly <em>not</em> find it because its ridges and valleys are just so prominent. The mathematics that grantees this sort of long term probabilistic certainty happens to belong to a branch called ‘ergodic theory’. That is the mathematics of long term behaviour of dynamical systems defined on probability measures.</p>
-
-<p>Probability measures? Yes one detail I did not mention above is that a more nuanced way of imaging the attractor, akin to the other formal definition given, comes from considering not input regions, but something more like input distributions. Probability measures, in fact. Then rather than just morphing one region into another, you flow one distribution into the next, where regions have a higher value according to the measure if you expect more points to map to that region after the transformations are applied. It allows you to go from a set with hard boundaries in black and white to a grey-scale reproduction with light and dark regions showing you where the transformations collect more or less of the points. It turns out that the picture you get with this dynamical approach is really a crayon imprint of the invariant probability measure, not the harsh black-and-white in-or-out set invariant.</p>
-
-<h2 id="what-now">What now?</h2>
-
-<p>Writing this program was frustrating at first but then I got quite into it! So it is very tempting to just keep improving on it, and I have a list of changes I’d like to make to it that could certainly keep me busy for the rest of my time here. I can’t do that though. This part is done. I haven’t reverse engineered anything! So now I’m dragging myself away from this part of the project. My next step is to try to reproduce part of the inverse procedure outlined in the 1994 paper “<em>Inverse and Approximation Problem for Two-Dimensional Fractal Sets</em>”. I hope to have implemented the very first part of their method (application of a wavelet transform to identify periodic oscillations around regression line corresponding to the scaling factor of transformation rules) by… Wednesday? I think that’s optimistic. It’s kind of damning that all this work likely won’t even get me up to date with the 2000’s progress on the problem but that’s how it goes, I know. I’m learning lots.</p>
-</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2019-07-30T00:00:00+08:00"><!-- start custom article footer snippet -->
+<p>I intended for the presentation to be quite self contained but I will be writing a post soon which discusses the finer details of the process and the mathematics behind it.</p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2019-07-30T00:00:00+01:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet --><div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">Subscribe</a></div></div><div class="article__license"><div class="license">
     <p>This work is licensed under a <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> license.
@@ -558,7 +528,7 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
         <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
       </a>
     </p>
-  </div></div></footer><div class="article__section-navigator clearfix"><div class="previous"><span>PREVIOUS</span><a href="/2019/07/20/In-McDonalds-Again.html">In McDonalds Again</a></div><div class="next"><span>NEXT</span><a href="/2019/08/20/Memory.html">Memory</a></div></div></div>
+  </div></div></footer><div class="article__section-navigator clearfix"><div class="previous"><span>PREVIOUS</span><a href="/2019/07/20/In-McDonalds-Again.html">Creature of Habit</a></div><div class="next"><span>NEXT</span><a href="/2019/07/31/IFS-writeup.html">Research Reflections</a></div></div></div>
 
 </div>
 
@@ -615,7 +585,7 @@ f(\,\underline{x}\,)=\color{lightgreen}{\begin{bmatrix}a & b \\ c & d\end{bmatri
     
     
       <script async="true" defer>
-        // TODO: add functionality to write a report on each last generation
+        // TODO: add functionality to write a properties on each last generation
 // TODO: add functionality to save last random system of equations
 // in placeholder IFS variable
 // Thought about inverse problem:
@@ -860,6 +830,10 @@ const drawPolygon = (verts, imgData, rgba) => {
   verts.reduce((a,b) => { drawLine(a,b,imgData,rgb); return b; });
   verts.map(p => { paintPixelBox(p, imgData, rgba, 3); return p});
 }
+const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+  const hex = x.toString(16)
+  return hex.length === 1 ? '0' + hex : hex
+}).join('')
 
 /************************/
 /* HELPER FUNCTIONS END */
@@ -868,18 +842,28 @@ const drawPolygon = (verts, imgData, rgba) => {
 /************************/
 /*    PRESETS           */
 /************************/
+const transformToLatex = (index, array, reColor) => {
+  let linear = array[0].map(column => column.map(el => el.toFixed(5)));
+  let translation = array[1].map(el => el.toFixed(5));
+  let myColor = "#000000";
+  if (reColor) {
+    myColor = rgbToHex(...IFS.defaultOptions.colors[index+1]);
+  }
 
+  return `\\color{${myColor}}{f_{${index + 1}}(\\mathbf{x})}&=\\begin{bmatrix}${linear[0][0]} & ${linear[1][0]}\\\\${linear[0][1]} & ${linear[1][1]}\\end{bmatrix}\\mathbf{x} + \\begin{bmatrix}${translation[0]}\\\\${translation[1]}\\end{bmatrix}`;
+}
 const paint = (canvas, fractalGetter) => {
   IFS.canvas = canvas;
   canvas.getContext('2d').putImageData(fractalGetter(), 0, 0);
 }
 const IFS = {
   init: (def, options) => {
-    if (def.init) { def.init(); }
+    if (def.init) { def.init(options); }
     def.ctf = getCoordinateTransform(
       def.referenceRegion, 
       getOutputRegion(def.referenceRegion, IFS.canvas, options)
     );
+    // calculate probability bins
     if (def.probabilities === 'equal') {
       def.probabilities = Array(def.transforms.length).fill(1/def.transforms.length);
       def.probBins = cummulative(def.probabilities);
@@ -899,12 +883,8 @@ const IFS = {
       def.probBins = cummulative(def.probabilities);
     }
     def.asPixel = p => def.ctf(p).map(e => Math.floor(e));
-    IFS.report = {};
-    IFS.report.transforms = def.transforms.map(affine => {
-      return [inferLinear(affine), inferTranslation(affine)];
-    })
-    IFS.report.fixedPoints = def.transforms.map(affine => { return getFixedPoint(affine);
-    });
+    IFS.setProperties(def);
+    IFS.setReport(options);
   },
   get: (def, n, options) => () => {
     options = override(IFS.defaultOptions, options);
@@ -939,6 +919,20 @@ const IFS = {
     initialPoint: [0,0],
     position: 'centre',
     scale: 0.9,
+    new: false,
+  },
+  setProperties: def => {
+    IFS.properties = {};
+    IFS.properties.transforms = def.transforms.map(affine => {
+      return [inferLinear(affine), inferTranslation(affine)];
+    })
+    IFS.properties.fixedPoints = def.transforms.map(affine => getFixedPoint(affine));
+  },
+  setReport: options => {
+    let color = (options.color == 'last') ? true : false;
+    latexTransforms = IFS.properties.transforms.map((v,k) => transformToLatex(k, v, color));
+    latexTransforms = latexTransforms.reduce((prev, current) => prev + "\\\\" + current);
+    IFS.latex = "$$\\bbox[20px, border: 2px solid orange]{\\begin{align}" + latexTransforms + "\\end{align}}$$";
   },
 }
 const getIFS = (def, N, options) => {
@@ -967,6 +961,7 @@ const getIFS = (def, N, options) => {
     })
   }
   // MAIN LOOP
+  console.log(options.style);
   for (var i = 0; i < N; i++) {
     let q = IFS.applyTransform(def)(p);
     let [a, b] = [p,q].map(v => def.ctf(v).map(e => Math.floor(e)));
@@ -980,13 +975,9 @@ const getIFS = (def, N, options) => {
     }
     p = q;
   }
-  drawPoint(
-    def.ctf(options.initialPoint).map(e => Math.floor(e)),
-    imageData,
-    options.style,
-    [255,0,0,255],
-    options.blobsSize
-  );
+  if (options.style == 'blobs' || options.style == 'lines') {
+    paintPixelBox(def.ctf(options.initialPoint).map(e => Math.floor(e)), imageData, [255,0,0,255], options.blobsSize);
+  }
   if (options.fixedPoints) {
     IFS.lastTransform = 0;
     def.transforms.map(affine => {
@@ -997,7 +988,6 @@ const getIFS = (def, N, options) => {
       IFS.lastTransform += 1;  
     })
   }
-  // IFS.report = getReport(def);
   return imageData;
 }
 
@@ -1088,10 +1078,12 @@ const random = {
   },
   transforms: [], // defined on object initialization
   probabilities: 'area-weighted', 
-  init: () => {
-    random.transforms = [];
-    for (var i = 0; i < random.order; i++) {
-      random.transforms = random.transforms.concat(scaleTransform(randomAffine(random.rotation, random.uniform), random.scale))
+  init: options => {
+    if (options.new == true || random.transforms.length < 1) {
+      random.transforms = [];
+      for (var i = 0; i < random.order; i++) {
+        random.transforms = random.transforms.concat(scaleTransform(randomAffine(random.rotation, random.uniform), random.scale))
+      }
     }
   },
 };
