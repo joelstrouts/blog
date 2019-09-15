@@ -9,10 +9,4 @@ article_header:
 title: Research Reflections
 ---
 
-As promised, I discuss the mathematics and finer technical details of the image generation technique described in my previous post.
-
-<!-- more -->
-
-## My Aim
-
-The fact that this simple
+This post is a work in progress. In it I will discuss the mathematics and the finer details of the image generation process I described in my last post.

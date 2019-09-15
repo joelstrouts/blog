@@ -8,7 +8,7 @@ article_header:
 title: Creature of Habit
 ---
 
-A brief update. An important work milestone and a vignette of how I spend my wild late nights in this vibrant, restless city - at McDonalds working.
+A brief update. An important work milestone and a vignette of how I spend my wild late nights in this vibrant, restless city - working in McDonalds.
 
 <!--more-->
 
