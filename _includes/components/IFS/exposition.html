@@ -15,15 +15,18 @@
   <div id="report"></div>
   <!-- contains the buttons -->
   <div id="presets">
-    <input style="background-color: #ddd" type="button" value="Barnsley Fern" alt="barnsleyFern">
-    <input style="background-color: #ddd" type="button" value="Maple Leaf" alt="mapleLeaf">
     <input style="background-color: #ddd" type="button" value="Binary Tree" alt="binaryTree">
     <input style="background-color: #ddd" type="button" value="Serpinski" alt="serpinski">
     <input style="background-color: #ddd" type="button" value="Sand Dollar" alt="sandDollar">
+    <input style="background-color: #ddd" type="button" value="Maple Leaf" alt="mapleLeaf">
+    <input style="background-color: #ddd" type="button" value="Barnsley Fern" alt="barnsleyFern">
     <input style="background-color: #ddd" type="button" value="Random" alt="random">
   </div>
+  <div id='lock-box' style="visibility: hidden;">
+    <input id='check-box' type='checkbox' value='Keep current random transformation' checked> Lock current transformation (rather than generating a new pattern each time)
+  </div>
   <!-- contains the textual desctiption -->
-  <h4 id="frame-title">↑ Select one of the above predefined rule sets to apply procedure to ↑</h4>
+  <h4 id="frame-title">↑ Choose an image to generate ↑</h4>
   <div id='slide-controls' hidden='true'>
     <input style="background-color: #ddd" type="button" value="previous slide" id="previous-button">
     <input style="background-color: #ddd" type="button" value="next slide" id="next-button">
@@ -41,78 +44,88 @@
     { // 0
       title:
       "The final result of the image generation process.",
-      description:
-      'This is what we are going to build up to - the final result. The only information needed to generate this image is knowledge of the self-similar transformations that characterise it. How exactly is knowledge of these transformations applied to produce such an image though? That is what we are going to walk through step by step in this slideshow.',
-      imageData: () => IFS.get(eval(preset), 250000),
+      description: () =>
+      "The image you've just generated is entirely determined the following set of equations:" + IFS.latex + "but how? How exactly are these functions used to generate the above image? That is what we are going to examine.",
+      options: {},
+      imageData: () => IFS.get(eval(preset), 250000, frames[0].options),
     },
     { // I
       title:
       "I. The initial starting point",
-      description:
-      "We start with just one point. For simplicity's sake, the coordinates of this point are chosen to be (0,0), but it actually doesn't matter where you choose to begin. In generating these images the point that you start with is moved around so many times that the importance of that first position is, in the end, thouroughly eroded. Like the classic street magic trick where you have to follow the ball underneath the three cups, after a while it seems impossible to determine where it all began anyway. NOTE: although the starting position may appear to be different for each choice of fractal, actually the red point is always (0,0). What's going on is that in each case we are looking at a different section of the cartesian plane.",
-      imageData: () => IFS.get(eval(preset), 0, {style: 'blobs', blobsSize: 3}),
+      description: () => 
+      "Yes, the image is generated from a handful (three, four, more perhaps) functions. What are these functions though? You can think of each function as representing a system of rules which tell you how to move points around. That is, if I have a point located in the top right of the image, where should I move it to? how about if it was in the top left?<br><br> Each function is a different set of rules describing exactly where each point should end up depending on where it started. That is why the first step in the image-generation process is to draw just one point. It is our first point. In the next step we will use the position of that first point to figure out where the second point should go, according to one of the functions.",
+      options: {style: 'blobs', blobsSize: 3},
+      imageData: () => IFS.get(eval(preset), 0, frames[1].options),
     },
     { // II
       title:
       "II. The very first iteration",
-      description:
-      "<i>This</i> is the core process. We take the position of the last point we plotted (in this case the only point) and we use one of the rules to decide where to move it to. Here the last point (the starting point) has been marked in red, and the new point is marked in black. NOTE: you may have not noticed any change between this slide and the last slide. If that is the case it is because the transformation that was applied mapped the initial position right back onto itself. <b>If you re-run the process</b> (you can do this by clicking again on the preset you wish to load, or clicking on the canvas itself) you will see that the new position is not the same every time - a different one of the transformation rules is chosen at random each time.",
-      imageData: () => IFS.get(eval(preset), 1, {style: 'lines', blobsSize: 3}),
+      description: () =>
+      "This is the very core process. The initial position, marked in red, was fed into one of the functions and the new position (as determined by the function) was spat out - the new position now marked in black. But hang on, which function? There was more than one function in the definition, and if each one is a different set of rules - how was it decided which rules got used? Well that's the funny part of the algorithm - it was chosen at random. At each step in the process the function which is used gets selected randomly from the handful given in the beginning. Recall that our functions are given by:" + IFS.latex + "In thise case the <i>particular</i> function which decided where the black point went in <i>this</i> iteration was: $f_{" + (IFS.lastTransform + 1) +"(\\mathbf{x})}$. If you want to see what would have happened if a different set of rules was applied, click on the image to regenerate it and the function will be randomised again! <br><br> Note: Although the functions are chosen at random, some are chosen more often than others (so if you've regenerated the image a few times and got the same one each time that's probably why).",
+      options: {style: 'lines', blobsSize: 3},
+      imageData: () => IFS.get(eval(preset), 1, frames[2].options),
     },
     { // III
       title:
-      "III. More iterations, colorised",
-      description:
-      "We make one small change to our method while things are still simple and uncluttered: we colour the lines and the points differently according to which transformation rule was responsible for each motion. The colours themselves are not significant, but lines with the same colour correspond to movements caused by the same transformation rule. This way it's a little easier to see what's happening under the hood.",
-      imageData: () => IFS.get(eval(preset), 5, {style: 'lines', color: 'last', blobsSize: 3}),
+      "III. One more step, now with colour!",
+      description: () => 
+      "Picking up from where we left off, we choose another function at random. This time instead of moving the starting point like before, we work with the most recent position, after the last function was applied. The result is three dots, one where we started, one after the first (randomly chosen) function was applied, and then the last one after the new (also randomly chosen) function was used. We draw a line following the path made by our point. <br><br>For a little more clarity we have coloured the lines tracing each movement from one position to the next. The colour of each line should correspond with the colour of one of our functions shown here:" + IFS.latex,
+      options: {style: 'lines', color: 'last', blobsSize: 3},
+      imageData: () => IFS.get(eval(preset), 2, frames[3].options),
       // function call:
       // IFS.get(eval(preset), 5, {style: 'lines', color: 'last'});
     },
     { // IV
       title:
       "IV. 50 Steps in, some patterns emerge.",
-      description:
-      "Here we plot the path that our first point follows as we apply this process over and over again, more and more times. Slowly, what seems chaotic shows form. From erratic motions to repeated patterns. Though the path is far from perfectly tracing the pattern we are seeking, we start to see its characteristics in the regions that are visited and revisited.",
-      imageData: () => IFS.get(eval(preset), 50, {style: 'lines', color: 'last', blobsSize: 3}),
+      description: () =>
+      "So now you get how it works - we choose a function at random, use it to calculate a new position based on the last one, then colour the path in-between according to which function was used. <br><br> Now you know how the process works, we can start cranking up the number of steps! Here we've done fifty steps, and the path is definitely random, but there's some order too. The same sorts of arcs traced out over and over. What do you think it will look like when we do even more?<br><br> The functions, for reference:" + IFS.latex,
+      options: {style: 'lines', color: 'last', blobsSize: 3},
+      imageData: () => IFS.get(eval(preset), 50, frames[4].options),
       // function call:
       // IFS.get(eval(preset), 10-1000, {style: 'lines', color: 'last'});
     },
     { // V
       title:
       "V. The output after 2000 of these random jumps",
-      description:
-      "This is perhaps my favourite step in the process. It is absolutely clear now that these rules when applied together produce something orderly, but the resulting form is still so messy and confusing. The step that nicely straddles the unpredictable beginnings and the completely predetermined end.",
-      imageData: () => IFS.get(eval(preset), 2000, {style: 'lines', color: 'last', blobsSize: 0}),
+      description: () =>
+      "Pretty tangled! Is it what you expected? I've reduced the size of the blobs left at each stopping point so they are just little dots, that way you can see the lines better. The outline of the shape has been completely traced now, and as for what's going on in the middle - something interesting! While the lines are very helpful for visualising the process, they are of course absent from the final image so in the next step we will be removing them. <br><br> The functions, for reference:" + IFS.latex,
+      options: {style: 'lines', color: 'last', blobsSize: 0},
+      imageData: () => IFS.get(eval(preset), 2000, frames[5].options),
       // function call:
       // IFS.get(eval(preset), 10,0000, {style: 'lines', color: 'last'});
     },
     { // VI
       title:
       "VI. What you see when you remove all the connecting lines",
-      description:
-      "The path becomes so tangled and self-crossing that it is easier to appreciate what's going on by actually giving up on following the movements and instead just focusing the spots which were visited along the way. Less ball of thread, more breadcrumbs. As we dot around, following one transformation after another, we place a marker at each resting place, colored according to the transformation responsible for its last motion. The result is much more sparse but much more orderly. The only thing left to do now is repeat the process many more times to flesh out the picture.",
-      imageData: () => IFS.get(eval(preset), 2000, {color: 'last'}),
+      description: () =>
+      "You should just be able to make out the final form now, but a bit faint perhaps - turns out that with the lines removed 2000 iterations doesn't seem like so many after all. Note: when we removed the lines, we kept colour on the points - that is to say: each point is coloured according to which function was responsible for moving it to its current position from whichever position came before.<br><br> The functions, for reference:" + IFS.latex,
+      options: {color: 'last'},
+      imageData: () => IFS.get(eval(preset), 2000, frames[6].options),
     },
     { // VII
       title:
-      "VII. Cranking up the iterations from 2,000 to 100,000",
-      description:
-      "And suddenly the shape comes into focus, and refreshing the picture seems to have little effect other than to cause the dancing of points around their already well settled places. It turns out these positions were in some way inevitable.",
-      imageData: () => IFS.get(eval(preset), 100000, {color: 'last'}),
+      "VII. From 2,000 to 100,000",
+      description: () =>
+      "The image is revealed! At this point we're kind of done. Not such a complex process really, kind of magical that it works. Of course, this image has colour and the original didn't, but it's for pedagogical purposes! I don't know about you, but when I first saw the pattern coloured like this, I was quite surprised. Something caught me off gaurd about how the colours segregate themselves into clearly defined regions like that. I think I expected them to be all mixed in together more. (that does happen to be the case for some of the random functions however). You can see how different regions in the image correspond to specific functions from the definition. <br><br>The functions, for reference:" + IFS.latex,
+      options: {color: 'last'},
+      imageData: () => IFS.get(eval(preset), 100000, frames[7].options),
     },
     { // VIII
       title:
       "VIII. Superimposing the bounding boxes to indicate the different rules",
-      description:
-      "Here we make one last addition to our visual exposition; one box surrounding the entire input region, and then one coloured output box for each rule making up the fractal definition. In this way the impact of each transformation is made absolutely apparent.",
-      imageData: () => IFS.get(eval(preset), 100000, {color: 'last', bboxes: true}),
+      description: () =>
+      "To make that relationship (hopefully) even clearer, I've drawn a coloured box for each function which is supposed to give some indication of what it's really doing, let me explain what they mean: Look at the largest box, the black one. Now choose one of the coloured ones, and compare what you see in the big black box to the contents of the smaller, warped, coloured box. The contents of the smaller box should be a small copy of what was in the larger box! That's how the functions really work, you can describe their effect by drawing input/output boxes like this because they keep everything which is within and without in proportion to the change in shape and position of the box. Changing the numbers in the functions essentially correspons to changing the coordinates of these output boxes. <br><br>The functions, for reference:" + IFS.latex,
+      options: {color: 'last', bboxes: true},
+      imageData: () => IFS.get(eval(preset), 100000, frames[8].options),
     },
     { // IX
       title:
       "IX. Ending where we started",
-      description:
-      "By removing the didactic coloring and inclusion of bounding boxes to indicate the transformations at work, we find ourselves back where we started - the process of generating the fractal from its transformation-specification is complete.",
-      imageData: () => IFS.get(eval(preset), 250000, {color: 'uniform'}),
+      description: () =>
+      "By removing the didactic coloring, the overlayed input/output boxes and, last of all, upping the iteration count now to 250,000 - we conclude our exposition. Now you understand why you see the points which make up the image dance around somewhat when you click to regenerate the image - because the exact positions are a result of this essentially random process. It is only from the aggregate of many many random movements that the pattern emerges. I hope you found this explanation interesting and understandable!",
+      options: {color: 'uniform'},
+      imageData: () => IFS.get(eval(preset), 250000, frames[9].options),
     },
   ];
 </script>
@@ -122,6 +135,7 @@
   // events / content
   let slideNum = 0;
   let preset = 'binaryTree';
+  let lockBox = document.getElementById('lock-box');
   let presets = [...document.getElementById('presets').childNodes];
   let loadPreset = (e) => {
     preset = e.target.alt;
@@ -135,6 +149,12 @@
         }
         e.target.style = "background-color: #ddd; font-weight: heavier;"
         preset = e.target.alt;
+        console.log(preset);
+        if (preset == 'random') {
+         lockBox.style = "visibility: visible;";
+        } else {
+         lockBox.style = "visibility: hidden;";
+        }
         getFrame(frames[slideNum]);
       };
     }
@@ -144,6 +164,7 @@
   let prevButton = document.getElementById('previous-button');
   let frameDescription = document.getElementById('frame-description');
   let frameTitle = document.getElementById('frame-title');
+  let checkBox = document.getElementById('check-box');
   let frameCanvas;
   let frameContext;
   let slideControls = document.getElementById('slide-controls');
@@ -167,11 +188,19 @@
       frameCanvas.width = containerWidth;
       frameCanvas.height = containerWidth;
       frameCanvas.id = "frame-canvas"
-      frameCanvas.onclick = () => paint(frameCanvas, frames[slideNum].imageData());
+      frameCanvas.onclick = () => {
+        if (checkBox.checked) { 
+          frames[slideNum].options.new = false;
+        } else {
+          frames[slideNum].options.new = true;
+        }
+        paint(frameCanvas, frames[slideNum].imageData())
+        frameDescription.innerHTML = frames[slideNum].description();
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+      };
     }
     slideControls.hidden = false;
     frameTitle.innerHTML = frame.title;
-    frameDescription.innerHTML = frame.description;
     if (preset == "random" || preset == "mapleLeaf") {
       IFS.defaultOptions.scale = 0.7;
     } else if (preset == "binaryTree") {
@@ -179,9 +208,13 @@
     } else {
       IFS.defaultOptions.scale = 0.9;
     }
+    if (checkBox.checked) { 
+      frame.options.new = false;
+    } else {
+      frame.options.new = true;
+    }
     paint(frameCanvas, frame.imageData());
-  }
-  const download = () => {
-    
+    frameDescription.innerHTML = frame.description();
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
   }
 </script>

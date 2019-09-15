@@ -1,11 +1,11 @@
 ---
 layout: article
-title: Working in Hong Kong (Part 1)
 article_header:
   type: cover
   image:
     src: /images/hongkong1.jpg
 mathjax: true
+title: My journey to HKU
 ---
 
 

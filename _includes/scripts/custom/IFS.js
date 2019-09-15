@@ -1,4 +1,4 @@
-// TODO: add functionality to write a report on each last generation
+// TODO: add functionality to write a properties on each last generation
 // TODO: add functionality to save last random system of equations
 // in placeholder IFS variable
 // Thought about inverse problem:
@@ -243,6 +243,10 @@ const drawPolygon = (verts, imgData, rgba) => {
   verts.reduce((a,b) => { drawLine(a,b,imgData,rgb); return b; });
   verts.map(p => { paintPixelBox(p, imgData, rgba, 3); return p});
 }
+const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+  const hex = x.toString(16)
+  return hex.length === 1 ? '0' + hex : hex
+}).join('')
 
 /************************/
 /* HELPER FUNCTIONS END */
@@ -251,18 +255,28 @@ const drawPolygon = (verts, imgData, rgba) => {
 /************************/
 /*    PRESETS           */
 /************************/
+const transformToLatex = (index, array, reColor) => {
+  let linear = array[0].map(column => column.map(el => el.toFixed(5)));
+  let translation = array[1].map(el => el.toFixed(5));
+  let myColor = "#000000";
+  if (reColor) {
+    myColor = rgbToHex(...IFS.defaultOptions.colors[index+1]);
+  }
 
+  return `\\color{${myColor}}{f_{${index + 1}}(\\mathbf{x})}&=\\begin{bmatrix}${linear[0][0]} & ${linear[1][0]}\\\\${linear[0][1]} & ${linear[1][1]}\\end{bmatrix}\\mathbf{x} + \\begin{bmatrix}${translation[0]}\\\\${translation[1]}\\end{bmatrix}`;
+}
 const paint = (canvas, fractalGetter) => {
   IFS.canvas = canvas;
   canvas.getContext('2d').putImageData(fractalGetter(), 0, 0);
 }
 const IFS = {
   init: (def, options) => {
-    if (def.init) { def.init(); }
+    if (def.init) { def.init(options); }
     def.ctf = getCoordinateTransform(
       def.referenceRegion, 
       getOutputRegion(def.referenceRegion, IFS.canvas, options)
     );
+    // calculate probability bins
     if (def.probabilities === 'equal') {
       def.probabilities = Array(def.transforms.length).fill(1/def.transforms.length);
       def.probBins = cummulative(def.probabilities);
@@ -282,12 +296,8 @@ const IFS = {
       def.probBins = cummulative(def.probabilities);
     }
     def.asPixel = p => def.ctf(p).map(e => Math.floor(e));
-    IFS.report = {};
-    IFS.report.transforms = def.transforms.map(affine => {
-      return [inferLinear(affine), inferTranslation(affine)];
-    })
-    IFS.report.fixedPoints = def.transforms.map(affine => { return getFixedPoint(affine);
-    });
+    IFS.setProperties(def);
+    IFS.setReport(options);
   },
   get: (def, n, options) => () => {
     options = override(IFS.defaultOptions, options);
@@ -322,6 +332,20 @@ const IFS = {
     initialPoint: [0,0],
     position: 'centre',
     scale: 0.9,
+    new: false,
+  },
+  setProperties: def => {
+    IFS.properties = {};
+    IFS.properties.transforms = def.transforms.map(affine => {
+      return [inferLinear(affine), inferTranslation(affine)];
+    })
+    IFS.properties.fixedPoints = def.transforms.map(affine => getFixedPoint(affine));
+  },
+  setReport: options => {
+    let color = (options.color == 'last') ? true : false;
+    latexTransforms = IFS.properties.transforms.map((v,k) => transformToLatex(k, v, color));
+    latexTransforms = latexTransforms.reduce((prev, current) => prev + "\\\\" + current);
+    IFS.latex = "$$\\bbox[20px, border: 2px solid orange]{\\begin{align}" + latexTransforms + "\\end{align}}$$";
   },
 }
 const getIFS = (def, N, options) => {
@@ -350,6 +374,7 @@ const getIFS = (def, N, options) => {
     })
   }
   // MAIN LOOP
+  console.log(options.style);
   for (var i = 0; i < N; i++) {
     let q = IFS.applyTransform(def)(p);
     let [a, b] = [p,q].map(v => def.ctf(v).map(e => Math.floor(e)));
@@ -363,13 +388,9 @@ const getIFS = (def, N, options) => {
     }
     p = q;
   }
-  drawPoint(
-    def.ctf(options.initialPoint).map(e => Math.floor(e)),
-    imageData,
-    options.style,
-    [255,0,0,255],
-    options.blobsSize
-  );
+  if (options.style == 'blobs' || options.style == 'lines') {
+    paintPixelBox(def.ctf(options.initialPoint).map(e => Math.floor(e)), imageData, [255,0,0,255], options.blobsSize);
+  }
   if (options.fixedPoints) {
     IFS.lastTransform = 0;
     def.transforms.map(affine => {
@@ -380,7 +401,6 @@ const getIFS = (def, N, options) => {
       IFS.lastTransform += 1;  
     })
   }
-  // IFS.report = getReport(def);
   return imageData;
 }
 
@@ -471,10 +491,12 @@ const random = {
   },
   transforms: [], // defined on object initialization
   probabilities: 'area-weighted', 
-  init: () => {
-    random.transforms = [];
-    for (var i = 0; i < random.order; i++) {
-      random.transforms = random.transforms.concat(scaleTransform(randomAffine(random.rotation, random.uniform), random.scale))
+  init: options => {
+    if (options.new == true || random.transforms.length < 1) {
+      random.transforms = [];
+      for (var i = 0; i < random.order; i++) {
+        random.transforms = random.transforms.concat(scaleTransform(randomAffine(random.rotation, random.uniform), random.scale))
+      }
     }
   },
 };

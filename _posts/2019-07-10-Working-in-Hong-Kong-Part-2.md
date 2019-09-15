@@ -1,7 +1,7 @@
 ---
 layout: article
-title: Working in Hong Kong (Part 2)
 mathjax: true
+title: Research Plans
 ---
 
 # Changing Tack

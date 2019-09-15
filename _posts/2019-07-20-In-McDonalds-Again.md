@@ -5,16 +5,14 @@ article_header:
   type: cover
   image:
     src: /images/mcdonalds-again.jpg
-title: In McDonalds Again
+title: Creature of Habit
 ---
 
 A brief update. An important work milestone and a vignette of how I spend my wild late nights in this vibrant, restless city - at McDonalds working.
 
 <!--more-->
 
-# A Carafe out of place
-
-> [(song to accompany this post)](https://www.youtube.com/watch?v=nI6nfACLPKQ)
+### A Carafe out of place
 
 My plan read "_write next blog by saturday_".
 
@@ -32,11 +30,11 @@ The one area of my life I am most guilty of this anxiety-inducing dogged pursuit
 
 I am willing to endure so much frustration in the name of reducing frustration. This week has been a frustration filled one, and now - at it's end - I have reached the bit with the gains and it's pretty nice, Check it out! 
 
-## The Goods
+### The big reveal
 {% include components/fern-demo.html %}
 
-Assuming it worked, and there's a box above this paragraph that a fern is drawn in when you press the submit button - I am pretty chuffed. The reason I'm questioning whether I've used my time well is because the 'real' work in producing that image was (to describe what I've done in the least favourable way) just me copying someone else's code. What took the rest of the time, (or actually, most of the time) was all of the secondary stuff - the behind the scenes organisational stuff. I wanted it all _just so_. Does the plumbing really need to be gilded? Well I've absolutely gilded this plumbing and, at the end of the day, I'm chuffed with the result. I had to rearrange all the bookshelves, move the bed to the other side of the room, replace all chevrons with stippling, but this; my little website setup - I can sleep soundly one more night with it like this.
+Assuming it worked, and there's a box above this paragraph that a fern is drawn in when you press the submit button - I am pretty chuffed. The reason I'm questioning whether I've used my time well is because the 'real' work in producing that image was (to describe what I've done in the least favourable way) just me copying someone else's code. What took the rest of the time, (or actually, most of the time) was in the presentation, and the behind the scenes stuff. The difference between getting it working and getting it working in the particular way that fits my workflow. But it's done now and hopefully the fussing over details will make the work in the coming weeks go a little smoother.
 
-## End
+### End
 
-And that's where I'm going to leave it. A little thought about fight club, and a little research milestone. I'll write about the maths behind it all, the programming, the life in Hong Kong - the books I'm reading, music I'm listening to, friends I've made, realisations I've had - I'll write about them soon, next, later. Not in that order.
+And that's where I'm going to leave it. A little thought about fight club, and a little research milestone.
