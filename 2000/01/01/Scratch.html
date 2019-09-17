@@ -396,7 +396,7 @@
       title:
       "VII. From 2,000 to 100,000",
       description: () =>
-      "The image is revealed! At this point we're kind of done. Not such a complex process really, kind of magical that it works. Of course, this image has colour and the original didn't, but it's for pedagogical purposes! I don't know about you, but when I first saw the pattern coloured like this, I was quite surprised. Something caught me off gaurd about how the colours segregate themselves into clearly defined regions like that. I think I expected them to be all mixed in together more. (that does happen to be the case for some of the random functions however). You can see how different regions in the image correspond to specific functions from the definition. <br><br>The functions, for reference:" + IFS.latex,
+      "The image is revealed! At this point the main work is done, the core process is not so complex actually. Of course, this image has colour and the original didn't, but it's for pedagogical purposes! I don't know about you, but when I first saw the pattern coloured like this, I was quite surprised. Something caught me off guard about how the colours segregate themselves into clearly defined regions like that. I think I expected them to be messier and mixed together more. (that does happen to be the case for some of the randomly generated IFSs however). You can see how different regions in the image correspond to specific functions from the definition. <br><br>The functions, for reference:" + IFS.latex,
       options: {color: 'last'},
       imageData: () => IFS.get(eval(preset), 100000, frames[7].options),
     },
@@ -412,7 +412,7 @@
       title:
       "IX. Ending where we started",
       description: () =>
-      "By removing the didactic coloring, the overlayed input/output boxes and, last of all, upping the iteration count now to 250,000 - we conclude our exposition. Now you understand why you see the points which make up the image dance around somewhat when you click to regenerate the image - because the exact positions are a result of this essentially random process. It is only from the aggregate of many many random movements that the pattern emerges. I hope you found this explanation interesting and understandable!",
+      "Removing the colours and the boxes, and adding a few more iterations (now 250,000), we're back where we started. Now you know why the points seem to dance about just slightly every time the image is regenerated - because the randomness in the procedure makes each image unique, yet still they each reveal the same underlying pattern. I hope you found this exposition both interesting and clear! ",
       options: {color: 'uniform'},
       imageData: () => IFS.get(eval(preset), 250000, frames[9].options),
     },
@@ -474,6 +474,13 @@
       frameCanvas = document.createElement('canvas');
       canvasContainer.appendChild(frameCanvas);
       let containerWidth = canvasContainer.offsetWidth;
+      if (canvasContainer.offsetWidth < 490) {
+        MathJax.Hub.Config({
+          CommonHTML: {
+            scale: 50
+          }
+        });
+      }
       frameCanvas.style = "margin-right:auto; margin-left:auto; display:block;"
       frameCanvas.width = containerWidth;
       frameCanvas.height = containerWidth;
