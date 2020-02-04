@@ -1,7 +1,9 @@
 // TODO: add functionality to write a properties on each last generation
 // TODO: add functionality to save last random system of equations
 // in placeholder IFS variable
-// Thought about inverse problem:
+// Thought about using this program to help with inverse problem:
+// (note, i know nothing about working with neural networks this is
+// conjecture about what could be a useful approach)
 // make training data for neural network by automatically generating
 // vast numbers of random images and associating with each output
 // image a battery of statistics about each combination of transforms.
@@ -253,8 +255,9 @@ const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
 /************************/
 
 /************************/
-/*    PRESETS           */
+/*  API-like functions  */
 /************************/
+
 const transformToLatex = (index, array, reColor) => {
   let linear = array[0].map(column => column.map(el => el.toFixed(5)));
   let translation = array[1].map(el => el.toFixed(5));
@@ -269,6 +272,8 @@ const paint = (canvas, fractalGetter) => {
   IFS.canvas = canvas;
   canvas.getContext('2d').putImageData(fractalGetter(), 0, 0);
 }
+
+
 const IFS = {
   init: (def, options) => {
     if (def.init) { def.init(options); }
@@ -348,6 +353,9 @@ const IFS = {
     IFS.latex = "$$\\bbox[20px, border: 2px solid orange]{\\begin{align}" + latexTransforms + "\\end{align}}$$";
   },
 }
+
+// returns an imagedata object which is an image of the IFS with the
+// parameters provided
 const getIFS = (def, N, options) => {
   const imageData = new ImageData(IFS.canvas.width, IFS.canvas.height);
   let thisColor; if (options.color == 'last') {
@@ -404,6 +412,27 @@ const getIFS = (def, N, options) => {
   return imageData;
 }
 
+/**************************/
+/*     PRESETS            */
+/**************************/
+
+// these are objects correctly formatted
+// so as to work as IFS definitions (for
+// use as the first argument of the
+// `getIFS()` function)
+
+// The IFS object handles most of the operations
+// that actually do work with/on these IFS definition
+// constructs. I see now, looking back at the code
+// that it is a weird OOP-but-without-actually-using-
+// -OOP-language-features type pattern.
+
+// passing one of these definitions to IFS.init()
+// is essentially the object construction, and
+// the method properties of the IFS object are essentially
+// the member methods for what would be an IFS class.
+// (I think).
+
 const barnsleyFern = {
   referenceRegion: {
     o: [-2.4,-0.5],
@@ -436,6 +465,7 @@ const binaryTree = {
   ],
   probabilities: Array(3).fill(1/3),
 };
+
 const mapleLeaf = {
   referenceRegion: {
     o: [-3.5,-3.6],
